@@ -1,0 +1,283 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  avatar    String?
+  role      UserRole @default(FARMER)
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  farms            Farm[]
+  recommendations  CropRecommendation[]
+  yieldPredictions YieldPrediction[]
+  diseaseDetections DiseaseDetection[]
+  calendarTasks    CalendarTask[]
+  forumPosts       ForumPost[]
+  forumComments    ForumComment[]
+  labourAlerts     LabourAlert[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  FARMER
+  AGRONOMIST
+  ADMIN
+}
+
+model Farm {
+  id          String  @id @default(cuid())
+  name        String
+  location    String
+  latitude    Float
+  longitude   Float
+  area        Float   // in acres
+  soilType    String
+  irrigationType String
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recommendations CropRecommendation[]
+  yieldPredictions YieldPrediction[]
+
+  @@map("farms")
+}
+
+model CropRecommendation {
+  id            String   @id @default(cuid())
+  userId        String
+  farmId        String?
+  
+  // Input parameters
+  nitrogen      Float
+  phosphorus    Float
+  potassium     Float
+  ph            Float
+  temperature   Float
+  humidity      Float
+  rainfall      Float
+  season        String
+  marketDemand  String?
+  
+  // Results
+  recommendations Json    // Array of crop recommendations with scores
+  confidence     Float
+  createdAt      DateTime @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  farm Farm? @relation(fields: [farmId], references: [id], onDelete: SetNull)
+
+  @@map("crop_recommendations")
+}
+
+model YieldPrediction {
+  id            String   @id @default(cuid())
+  userId        String
+  farmId        String?
+  
+  // Input parameters
+  crop          String
+  area          Float
+  avgRainfall   Float
+  pesticideUsage Float
+  temperature   Float
+  pastYields    Json?    // Historical yield data
+  
+  // Results
+  predictedYield Float
+  confidenceInterval Json // {lower: number, upper: number}
+  confidence    Float
+  createdAt     DateTime @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  farm Farm? @relation(fields: [farmId], references: [id], onDelete: SetNull)
+
+  @@map("yield_predictions")
+}
+
+model DiseaseDetection {
+  id            String   @id @default(cuid())
+  userId        String
+  
+  // Input
+  imagePath     String
+  cropType      String?
+  
+  // Results
+  diseaseName   String
+  severity      String   // LOW, MEDIUM, HIGH
+  confidence    Float
+  treatment     Json     // Treatment recommendations
+  annotations   Json?    // Bounding boxes, heatmaps
+  createdAt     DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("disease_detections")
+}
+
+model CalendarTask {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  taskType    TaskType
+  crop        String?
+  startDate   DateTime
+  endDate     DateTime?
+  completed   Boolean    @default(false)
+  priority    Priority   @default(MEDIUM)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calendar_tasks")
+}
+
+enum TaskType {
+  SOWING
+  IRRIGATION
+  FERTILIZATION
+  PEST_CONTROL
+  HARVESTING
+  MARKET_ANALYSIS
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model CropPrice {
+  id        String   @id @default(cuid())
+  crop      String
+  market    String
+  price     Float    // per unit
+  unit      String   // kg, quintal, etc.
+  date      DateTime
+  source    String?  // API source or manual entry
+  createdAt DateTime @default(now())
+
+  @@unique([crop, market, date])
+  @@map("crop_prices")
+}
+
+model WeatherData {
+  id          String   @id @default(cuid())
+  latitude    Float
+  longitude   Float
+  temperature Float
+  humidity    Float
+  rainfall    Float
+  windSpeed   Float?
+  pressure    Float?
+  date        DateTime
+  forecast    Boolean  @default(false) // true for forecast, false for historical
+  createdAt   DateTime @default(now())
+
+  @@unique([latitude, longitude, date, forecast])
+  @@map("weather_data")
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  category  String
+  tags      String[] @default([])
+  likes     Int      @default(0)
+  views     Int      @default(0)
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments ForumComment[]
+
+  @@map("forum_posts")
+}
+
+model ForumComment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  content   String
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("forum_comments")
+}
+
+model LabourAlert {
+  id          String      @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  labourType  String      // harvesting, planting, etc.
+  workersNeeded Int
+  payRate     Float?
+  location    String
+  startDate   DateTime
+  endDate     DateTime
+  status      AlertStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("labour_alerts")
+}
+
+enum AlertStatus {
+  ACTIVE
+  FILLED
+  EXPIRED
+  CANCELLED
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  message   String
+  response  String?
+  language  String   @default("en")
+  createdAt DateTime @default(now())
+
+  @@map("chat_messages")
+}

@@ -1,0 +1,232 @@
+[
+  {
+    "id": "demo-farmer-1",
+    "email": "demo@farmer.com",
+    "firstName": "Rajesh",
+    "lastName": "Kumar",
+    "phone": "+91 98765 43210",
+    "role": "FARMER",
+    "location": {
+      "state": "Punjab",
+      "district": "Ludhiana",
+      "village": "Khanna",
+      "coordinates": {
+        "lat": 30.7046,
+        "lon": 76.2187
+      }
+    },
+    "farms": [
+      {
+        "id": "farm-1",
+        "name": "Kumar Family Farm",
+        "area": 5.5,
+        "soilType": "Alluvial",
+        "irrigationType": "Canal + Tubewell",
+        "crops": ["wheat", "rice", "maize"],
+        "coordinates": {
+          "lat": 30.7046,
+          "lon": 76.2187
+        }
+      }
+    ],
+    "preferences": {
+      "language": "hi",
+      "units": "metric",
+      "notifications": {
+        "weather": true,
+        "prices": true,
+        "diseases": true
+      }
+    },
+    "stats": {
+      "totalYield": 125,
+      "profitMargin": 28,
+      "sustainabilityScore": 85,
+      "yearsExperience": 15
+    }
+  },
+  {
+    "id": "demo-farmer-2",
+    "email": "priya.sharma@farmer.com",
+    "firstName": "Priya",
+    "lastName": "Sharma",
+    "phone": "+91 87654 32109",
+    "role": "FARMER",
+    "location": {
+      "state": "Maharashtra",
+      "district": "Pune",
+      "village": "Baramati",
+      "coordinates": {
+        "lat": 18.1124,
+        "lon": 74.5815
+      }
+    },
+    "farms": [
+      {
+        "id": "farm-2",
+        "name": "Organic Valley Farm",
+        "area": 3.2,
+        "soilType": "Black Cotton",
+        "irrigationType": "Drip Irrigation",
+        "crops": ["tomato", "onion", "sugarcane"],
+        "coordinates": {
+          "lat": 18.1124,
+          "lon": 74.5815
+        }
+      }
+    ],
+    "preferences": {
+      "language": "en",
+      "units": "metric",
+      "notifications": {
+        "weather": true,
+        "prices": true,
+        "diseases": true
+      }
+    },
+    "stats": {
+      "totalYield": 98,
+      "profitMargin": 35,
+      "sustainabilityScore": 92,
+      "yearsExperience": 8
+    }
+  },
+  {
+    "id": "demo-farmer-3",
+    "email": "mohammed.ali@farmer.com",
+    "firstName": "Mohammed",
+    "lastName": "Ali",
+    "phone": "+91 76543 21098",
+    "role": "FARMER",
+    "location": {
+      "state": "West Bengal",
+      "district": "Bardhaman",
+      "village": "Katwa",
+      "coordinates": {
+        "lat": 23.6489,
+        "lon": 88.1336
+      }
+    },
+    "farms": [
+      {
+        "id": "farm-3",
+        "name": "Ali Rice Fields",
+        "area": 4.8,
+        "soilType": "Clayey",
+        "irrigationType": "Flood Irrigation",
+        "crops": ["rice", "jute", "potato"],
+        "coordinates": {
+          "lat": 23.6489,
+          "lon": 88.1336
+        }
+      }
+    ],
+    "preferences": {
+      "language": "hi",
+      "units": "metric",
+      "notifications": {
+        "weather": true,
+        "prices": false,
+        "diseases": true
+      }
+    },
+    "stats": {
+      "totalYield": 110,
+      "profitMargin": 22,
+      "sustainabilityScore": 78,
+      "yearsExperience": 20
+    }
+  },
+  {
+    "id": "demo-farmer-4",
+    "email": "sunita.patel@farmer.com",
+    "firstName": "Sunita",
+    "lastName": "Patel",
+    "phone": "+91 65432 10987",
+    "role": "FARMER",
+    "location": {
+      "state": "Gujarat",
+      "district": "Ahmedabad",
+      "village": "Sanand",
+      "coordinates": {
+        "lat": 22.9734,
+        "lon": 72.3997
+      }
+    },
+    "farms": [
+      {
+        "id": "farm-4",
+        "name": "Patel Cotton Farm",
+        "area": 6.0,
+        "soilType": "Sandy Loam",
+        "irrigationType": "Sprinkler",
+        "crops": ["cotton", "groundnut", "wheat"],
+        "coordinates": {
+          "lat": 22.9734,
+          "lon": 72.3997
+        }
+      }
+    ],
+    "preferences": {
+      "language": "hi",
+      "units": "metric",
+      "notifications": {
+        "weather": true,
+        "prices": true,
+        "diseases": true
+      }
+    },
+    "stats": {
+      "totalYield": 88,
+      "profitMargin": 32,
+      "sustainabilityScore": 88,
+      "yearsExperience": 12
+    }
+  },
+  {
+    "id": "demo-farmer-5",
+    "email": "ravi.krishna@farmer.com",
+    "firstName": "Ravi",
+    "lastName": "Krishna",
+    "phone": "+91 54321 09876",
+    "role": "FARMER",
+    "location": {
+      "state": "Karnataka",
+      "district": "Bangalore Rural",
+      "village": "Doddaballapur",
+      "coordinates": {
+        "lat": 13.2257,
+        "lon": 77.5570
+      }
+    },
+    "farms": [
+      {
+        "id": "farm-5",
+        "name": "Krishna Horticulture",
+        "area": 2.5,
+        "soilType": "Red Laterite",
+        "irrigationType": "Drip + Micro Sprinkler",
+        "crops": ["tomato", "capsicum", "cucumber"],
+        "coordinates": {
+          "lat": 13.2257,
+          "lon": 77.5570
+        }
+      }
+    ],
+    "preferences": {
+      "language": "en",
+      "units": "metric",
+      "notifications": {
+        "weather": true,
+        "prices": true,
+        "diseases": true
+      }
+    },
+    "stats": {
+      "totalYield": 145,
+      "profitMargin": 42,
+      "sustainabilityScore": 90,
+      "yearsExperience": 6
+    }
+  }
+]
