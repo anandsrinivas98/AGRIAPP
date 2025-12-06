@@ -14,6 +14,7 @@ import { config } from './config';
 import { errorHandler, notFound } from './middleware/errorHandler';
 import { setupSocketIO } from './services/socketService';
 import { cacheService } from './services/cacheService';
+import { initializeCronJobs } from './services/cronService';
 import routes from './routes';
 
 const app = express();
@@ -124,6 +125,13 @@ const initializeServices = async () => {
   } catch (error) {
     console.error('⚠️  Cache service initialization failed:', error);
     console.log('⚠️  Server will continue without caching');
+  }
+
+  // Initialize cron jobs
+  try {
+    initializeCronJobs();
+  } catch (error) {
+    console.error('⚠️  Cron jobs initialization failed:', error);
   }
 };
 

@@ -14,7 +14,8 @@
     "migrate": "prisma migrate dev",
     "migrate:prod": "prisma migrate deploy",
     "seed": "ts-node src/scripts/seed.ts",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "cleanup:pending": "ts-node src/scripts/cleanupPendingUsers.ts"
   },
   "dependencies": {
     "@chroma-core/default-embed": "^0.1.9",

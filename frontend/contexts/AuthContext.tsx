@@ -216,6 +216,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Login successful!');
     } catch (error: any) {
       const message = error.response?.data?.error || 'Login failed';
+      
+      // Check if email verification is required
+      if (error.response?.data?.requiresVerification) {
+        dispatch({ type: 'LOGOUT' });
+        toast.error('Please verify your email before logging in');
+        throw { ...error, requiresVerification: true, email: error.response.data.email };
+      }
+      
       dispatch({ type: 'AUTH_FAILURE', payload: message });
       toast.error(message);
       throw error;
@@ -228,6 +236,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const response = await axios.post('/api/auth/register', userData);
 
+      // Check if email verification is required
+      if (response.data.requiresVerification) {
+        dispatch({ type: 'LOGOUT' }); // Clear loading state
+        toast.success('Registration successful! Please check your email for verification code.');
+        // Redirect will be handled by the calling component
+        return;
+      }
+
+      // Old flow (if verification is disabled)
       const { user, token, expiresIn } = response.data;
       setTokenWithExpiry(token, expiresIn);
       

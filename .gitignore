@@ -87,6 +87,8 @@ temp/
 # Editor directories and files
 .vscode/
 .idea/
+.kiro/
+.qodo/
 *.swp
 *.swo
 *~

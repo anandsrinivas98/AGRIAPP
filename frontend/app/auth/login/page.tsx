@@ -35,7 +35,12 @@ export default function LoginPage() {
       await login(formData.email, formData.password);
       // Redirect to dashboard after successful login
       router.push('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
+      // Check if email verification is required
+      if (error?.requiresVerification) {
+        router.push(`/auth/verify-email?email=${encodeURIComponent(error.email || formData.email)}`);
+        return;
+      }
       // Error is handled by AuthContext and shown via toast
       console.error('Login error:', error);
     }

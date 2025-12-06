@@ -70,8 +70,8 @@ export default function RegisterPage() {
         password: formData.password,
         phone: formData.phone
       });
-      // Redirect to dashboard after successful registration
-      router.push('/dashboard');
+      // Redirect to email verification page
+      router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
       // Error is handled by AuthContext and shown via toast
       console.error('Registration error:', error);
