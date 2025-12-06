@@ -152,7 +152,15 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't retry if:
+    // 1. Already retried
+    // 2. Request is to refresh endpoint (prevent infinite loop)
+    // 3. Request is to login/register endpoints
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/refresh') || 
+                          originalRequest.url?.includes('/auth/login') ||
+                          originalRequest.url?.includes('/auth/register');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {
@@ -163,7 +171,8 @@ axios.interceptors.response.use(
         return axios(originalRequest);
       } catch (refreshError) {
         clearToken();
-        if (typeof window !== 'undefined') {
+        // Don't redirect if already on auth pages
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/')) {
           window.location.href = '/auth/login';
         }
         return Promise.reject(refreshError);
