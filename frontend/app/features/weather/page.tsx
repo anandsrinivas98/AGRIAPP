@@ -8,9 +8,9 @@ import PageHeader from '../../../components/shared/PageHeader';
 import toast from 'react-hot-toast';
 
 function WeatherContent() {
-  const [weatherData, setWeatherData] = useState(null);
+  const [weatherData, setWeatherData] = useState<any>(null);
   const [location, setLocation] = useState({ lat: 28.6139, lon: 77.2090 }); // Default to Delhi
-  const [locationData, setLocationData] = useState(null);
+  const [locationData, setLocationData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showLocationSelector, setShowLocationSelector] = useState(false);
 
@@ -60,7 +60,7 @@ function WeatherContent() {
   };
 
   // Handle location selection
-  const handleLocationSelect = (selectedLocationData) => {
+  const handleLocationSelect = (selectedLocationData: any) => {
     setLocationData(selectedLocationData);
     setLocation({
       lat: parseFloat(selectedLocationData.latitude),

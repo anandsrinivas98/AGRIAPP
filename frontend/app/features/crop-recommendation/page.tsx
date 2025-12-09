@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 const EnhancedRecommendations = dynamic(
   () => import('@/components/crop-recommendation/EnhancedRecommendations'),
   { 
-    loading: () => <LoadingSpinner text="Loading enhanced analysis..." />,
+    loading: () => <LoadingSpinner message="Loading enhanced analysis..." />,
     ssr: false 
   }
 );
@@ -444,7 +444,7 @@ export default function CropRecommendationPage() {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Quick Preview</h2>
 
             {loading ? (
-              <LoadingSpinner text="Analyzing your data..." />
+              <LoadingSpinner message="Analyzing your data..." />
             ) : recommendations ? (
               <div className="space-y-6">
                 {/* Top Crops */}

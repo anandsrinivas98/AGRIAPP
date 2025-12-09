@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   CloudIcon,
@@ -13,7 +14,7 @@ interface WeatherDetailsProps {
   location: { lat: number; lng: number };
 }
 
-export default function WeatherDetails({ data, location }: WeatherDetailsProps) {
+const WeatherDetails = React.memo(function WeatherDetails({ data, location }: WeatherDetailsProps) {
   const { current, forecast, hourly } = data;
 
   const getWeatherIcon = (condition: string) => {
@@ -226,4 +227,6 @@ export default function WeatherDetails({ data, location }: WeatherDetailsProps) 
       </motion.div>
     </div>
   );
-}
+});
+
+export default WeatherDetails;

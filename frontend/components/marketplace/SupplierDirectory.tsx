@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
 import { motion } from 'framer-motion';
 import { 
   MagnifyingGlassIcon,
@@ -32,25 +33,16 @@ interface Supplier {
   yearsInBusiness: number;
 }
 
-export default function SupplierDirectory() {
+const SupplierDirectory = React.memo(function SupplierDirectory() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const categories = ['all', 'seeds', 'fertilizers', 'equipment', 'pesticides', 'irrigation'];
+  const categories = useMemo(() => ['all', 'seeds', 'fertilizers', 'equipment', 'pesticides', 'irrigation'], []);
 
-  useEffect(() => {
-    fetchSuppliers();
-  }, []);
-
-  useEffect(() => {
-    filterSuppliers();
-  }, [suppliers, searchTerm, selectedCategory]);
-
-  const fetchSuppliers = async () => {
+  const fetchSuppliers = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -120,20 +112,9 @@ export default function SupplierDirectory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const filterSuppliers = () => {
-    let filtered = suppliers.filter(supplier => {
-      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           supplier.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           supplier.products.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesCategory = selectedCategory === 'all' || supplier.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-    setFilteredSuppliers(filtered);
-  };
-
-  const renderStars = (rating: number) => {
+  const renderStars = useCallback((rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <span key={i}>
         {i < Math.floor(rating) ? (
@@ -143,7 +124,35 @@ export default function SupplierDirectory() {
         )}
       </span>
     ));
-  };
+  }, []);
+
+
+
+  const filteredSuppliers = useMemo(() => {
+    return suppliers.filter(supplier => {
+      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           supplier.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           supplier.products.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesCategory = selectedCategory === 'all' || supplier.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [suppliers, searchTerm, selectedCategory]);
+
+  const handleViewModeChange = useCallback((mode: 'grid' | 'list') => {
+    setViewMode(mode);
+  }, []);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCategory(e.target.value);
+  }, []);
+
+  useEffect(() => {
+    fetchSuppliers();
+  }, [fetchSuppliers]);
 
   if (loading) {
     return (
@@ -162,7 +171,7 @@ export default function SupplierDirectory() {
         </div>
         <div className="flex space-x-2">
           <button
-            onClick={() => setViewMode('grid')}
+            onClick={() => handleViewModeChange('grid')}
             className={`px-4 py-2 rounded-lg transition-all ${
               viewMode === 'grid' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'
             }`}
@@ -170,7 +179,7 @@ export default function SupplierDirectory() {
             Grid
           </button>
           <button
-            onClick={() => setViewMode('list')}
+            onClick={() => handleViewModeChange('list')}
             className={`px-4 py-2 rounded-lg transition-all ${
               viewMode === 'list' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'
             }`}
@@ -187,13 +196,13 @@ export default function SupplierDirectory() {
             type="text"
             placeholder="Search suppliers..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
           />
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={handleCategoryChange}
           className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none"
         >
           {categories.map(category => (
@@ -204,92 +213,97 @@ export default function SupplierDirectory() {
         </select>
       </div>
 
-      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-        {filteredSuppliers.map((supplier, index) => (
-          <motion.div
-            key={supplier.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all p-6"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <BuildingStorefrontIcon className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{supplier.name}</h3>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <span className="text-xs text-gray-600 capitalize">{supplier.category}</span>
-                    {supplier.verified && (
-                      <span className="text-green-600 text-xs">✓ Verified</span>
-                    )}
+      {/* Supplier listings */}
+      {filteredSuppliers.length > 0 ? (
+        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+          {filteredSuppliers.map((supplier, index) => (
+            <motion.div
+              key={supplier.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-2xl border border-gray-200 shadow-lg hover:shadow-xl transition-all p-6"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <BuildingStorefrontIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{supplier.name}</h3>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs text-gray-600 capitalize">{supplier.category}</span>
+                      {supplier.verified && (
+                        <span className="text-green-600 text-xs">✓ Verified</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <p className="text-sm text-gray-600 mb-4">{supplier.description}</p>
+              <p className="text-sm text-gray-600 mb-4">{supplier.description}</p>
 
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center space-x-2 text-sm">
-                <MapPinIcon className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700">{supplier.location}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1">
-                  {renderStars(supplier.rating)}
-                  <span className="text-sm text-gray-600 ml-1">
-                    ({supplier.reviews} reviews)
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center space-x-2 text-sm">
+                  <MapPinIcon className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-700">{supplier.location}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1">
+                    {renderStars(supplier.rating)}
+                    <span className="text-sm text-gray-600 ml-1">
+                      ({supplier.reviews} reviews)
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-600">
+                    {supplier.yearsInBusiness} years
                   </span>
                 </div>
-                <span className="text-xs text-gray-600">
-                  {supplier.yearsInBusiness} years
-                </span>
               </div>
-            </div>
 
-            <div className="mb-4">
-              <div className="text-xs font-medium text-gray-700 mb-2">Products:</div>
-              <div className="flex flex-wrap gap-1">
-                {supplier.products.slice(0, 3).map((product, i) => (
-                  <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                    {product}
-                  </span>
-                ))}
+              <div className="mb-4">
+                <div className="text-xs font-medium text-gray-700 mb-2">Products:</div>
+                <div className="flex flex-wrap gap-1">
+                  {supplier.products.slice(0, 3).map((product, i) => (
+                    <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                      {product}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="border-t pt-4 space-y-2">
-              <a href={`tel:${supplier.contact.phone}`} className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
-                <PhoneIcon className="w-4 h-4" />
-                <span>{supplier.contact.phone}</span>
-              </a>
-              <a href={`mailto:${supplier.contact.email}`} className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
-                <EnvelopeIcon className="w-4 h-4" />
-                <span>{supplier.contact.email}</span>
-              </a>
-              <a href={`https://${supplier.contact.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
-                <GlobeAltIcon className="w-4 h-4" />
-                <span>{supplier.contact.website}</span>
-              </a>
-            </div>
+              <div className="border-t pt-4 space-y-2">
+                <a href={`tel:${supplier.contact.phone}`} className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
+                  <PhoneIcon className="w-4 h-4" />
+                  <span>{supplier.contact.phone}</span>
+                </a>
+                <a href={`mailto:${supplier.contact.email}`} className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
+                  <EnvelopeIcon className="w-4 h-4" />
+                  <span>{supplier.contact.email}</span>
+                </a>
+                <a href={`https://${supplier.contact.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 text-sm text-gray-700 hover:text-green-600">
+                  <GlobeAltIcon className="w-4 h-4" />
+                  <span>{supplier.contact.website}</span>
+                </a>
+              </div>
 
-            <button className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
-              Contact Supplier
-            </button>
-          </motion.div>
-        ))}
-      </div>
-
-      {filteredSuppliers.length === 0 && (
+              <button className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
+                Contact Supplier
+              </button>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-12">
           <BuildingStorefrontIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No suppliers found</h3>
           <p className="text-gray-600">Try adjusting your search or filters</p>
         </div>
       )}
+
+
     </div>
   );
-}
+});
+
+export default SupplierDirectory;

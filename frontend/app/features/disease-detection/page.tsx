@@ -201,7 +201,7 @@ export default function DiseaseDetectionPage() {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Analysis Results</h2>
 
             {loading ? (
-              <LoadingSpinner text="Analyzing image..." />
+              <LoadingSpinner message="Analyzing image..." />
             ) : result ? (
               <div className="space-y-6">
                 {/* Disease Info */}

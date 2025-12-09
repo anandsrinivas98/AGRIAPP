@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
 import { motion } from 'framer-motion';
 import { 
   ArrowUpIcon,
@@ -8,66 +9,42 @@ import {
   MagnifyingGlassIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
+import { marketDataService } from '@/lib/services/marketDataService';
+import { formatINR } from '@/lib/utils/currencyFormatter';
+import { CommodityPrice } from '@/lib/types/marketData';
 
-interface CommodityPrice {
-  id: string;
-  name: string;
-  symbol: string;
-  currentPrice: number;
-  change: number;
-  changePercent: number;
-  high24h: number;
-  low24h: number;
-  volume: string;
-  category: string;
-  lastUpdated: string;
-}
 
-export default function LivePrices() {
+
+const LivePrices = React.memo(function LivePrices() {
   const [prices, setPrices] = useState<CommodityPrice[]>([]);
-  const [filteredPrices, setFilteredPrices] = useState<CommodityPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  const categories = ['all', 'grains', 'oilseeds', 'livestock', 'dairy', 'fruits'];
+  const categories = useMemo(() => ['all', 'grains', 'oilseeds', 'livestock', 'dairy', 'fruits'], []);
 
-  useEffect(() => {
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 300000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    filterAndSortPrices();
-  }, [prices, searchTerm, selectedCategory, sortConfig]);
-
-  const fetchPrices = async () => {
+  const fetchPrices = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Set data immediately for faster render
-      const mockPrices: CommodityPrice[] = [
-        { id: '1', name: 'Wheat', symbol: 'WHEAT', currentPrice: 275.50, change: 6.30, changePercent: 2.34, high24h: 280.00, low24h: 268.20, volume: '1.2M tons', category: 'grains', lastUpdated: new Date().toISOString() },
-        { id: '2', name: 'Corn', symbol: 'CORN', currentPrice: 195.75, change: -3.50, changePercent: -1.76, high24h: 201.25, low24h: 194.80, volume: '2.1M tons', category: 'grains', lastUpdated: new Date().toISOString() },
-        { id: '3', name: 'Soybeans', symbol: 'SOY', currentPrice: 465.20, change: 18.75, changePercent: 4.20, high24h: 470.00, low24h: 445.50, volume: '850K tons', category: 'oilseeds', lastUpdated: new Date().toISOString() },
-        { id: '4', name: 'Rice', symbol: 'RICE', currentPrice: 340.80, change: 3.10, changePercent: 0.92, high24h: 345.00, low24h: 335.20, volume: '1.8M tons', category: 'grains', lastUpdated: new Date().toISOString() },
-        { id: '5', name: 'Cotton', symbol: 'COTTON', currentPrice: 82.45, change: -1.25, changePercent: -1.49, high24h: 84.20, low24h: 81.80, volume: '650K bales', category: 'oilseeds', lastUpdated: new Date().toISOString() },
-        { id: '6', name: 'Sugar', symbol: 'SUGAR', currentPrice: 19.85, change: 0.45, changePercent: 2.32, high24h: 20.10, low24h: 19.20, volume: '2.3M tons', category: 'grains', lastUpdated: new Date().toISOString() }
-      ];
+      // Fetch real data from Indian market APIs
+      const realPrices = await marketDataService.getCommodityPrices({
+        category: selectedCategory === 'all' ? undefined : selectedCategory,
+        limit: 50
+      });
       
-      setPrices(mockPrices);
+      setPrices(realPrices);
       setLastRefresh(new Date());
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch prices:', error);
       setLoading(false);
     }
-  };
+  }, [selectedCategory]);
 
-  const filterAndSortPrices = () => {
+  const filteredPrices = useMemo(() => {
     let filtered = prices.filter(price => {
       const matchesSearch = price.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            price.symbol.toLowerCase().includes(searchTerm.toLowerCase());
@@ -90,20 +67,26 @@ export default function LivePrices() {
       }
     });
 
-    setFilteredPrices(filtered);
-  };
+    return filtered;
+  }, [prices, searchTerm, selectedCategory, sortConfig]);
 
-  const handleSort = (key: string) => {
+  const handleSort = useCallback((key: string) => {
     setSortConfig(prev => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
-  };
+  }, []);
 
-  const getSortIcon = (key: string) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === 'asc' ? '↑' : '↓';
-  };
+  const getSortIcon = useCallback((key: string) => {
+    if (sortConfig.key !== key) return '';
+    return sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
+  }, [sortConfig]);
+
+  useEffect(() => {
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 300000);
+    return () => clearInterval(interval);
+  }, [fetchPrices]);
 
   if (loading) {
     return (
@@ -185,44 +168,46 @@ export default function LivePrices() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPrices.map((price, index) => (
-                <motion.tr
-                  key={price.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{price.name}</div>
-                      <div className="text-sm text-gray-500">{price.symbol}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-gray-900">${price.currentPrice.toFixed(2)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`flex items-center space-x-1 ${price.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {price.changePercent >= 0 ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
-                      <span className="text-sm font-semibold">{Math.abs(price.changePercent).toFixed(2)}%</span>
-                    </div>
-                    <div className={`text-xs ${price.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {price.change >= 0 ? '+' : ''}{price.change.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">${price.high24h.toFixed(2)}</div>
-                    <div className="text-sm text-gray-500">${price.low24h.toFixed(2)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{price.volume}</div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
           </table>
+          
+          {/* Table Body */}
+          <div className="bg-white max-h-96 overflow-y-auto">
+            {filteredPrices.map((price, index) => (
+              <div key={price.id || index} className="flex items-center border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                <div className="flex-1 px-6 py-4">
+                  <div className="text-sm font-medium text-gray-900">{price.name}</div>
+                  <div className="text-sm text-gray-500">{price.symbol}</div>
+                </div>
+                <div className="flex-1 px-6 py-4">
+                  <div className="text-sm font-semibold text-gray-900">{formatINR(Number(price.currentPrice) || 0)}</div>
+                </div>
+                <div className="flex-1 px-6 py-4">
+                  <div className={`flex items-center space-x-1 ${price.changePercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {price.changePercent >= 0 ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
+                    <span className="text-sm font-semibold">{Math.abs(price.changePercent).toFixed(2)}%</span>
+                  </div>
+                  <div className={`text-xs ${price.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {price.change >= 0 ? '+' : ''}{formatINR(Math.abs(Number(price.change) || 0))}
+                  </div>
+                </div>
+                <div className="flex-1 px-6 py-4">
+                  <div className="text-sm text-gray-900">{formatINR(Number(price.volume) || 0)}</div>
+                </div>
+                <div className="flex-1 px-6 py-4">
+                  <div className="text-sm text-gray-900">{price.market}</div>
+                </div>
+                <div className="flex-1 px-6 py-4">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    price.changePercent > 0 ? 'bg-green-100 text-green-800' :
+                    price.changePercent < 0 ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {price.changePercent > 0 ? 'bullish' : price.changePercent < 0 ? 'bearish' : 'neutral'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         {filteredPrices.length === 0 && (
           <div className="text-center py-12">
@@ -250,4 +235,6 @@ export default function LivePrices() {
       </div>
     </div>
   );
-}
+});
+
+export default LivePrices;

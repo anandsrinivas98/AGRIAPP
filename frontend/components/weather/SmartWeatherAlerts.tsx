@@ -1,4 +1,5 @@
 'use client';
+import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ExclamationTriangleIcon,
@@ -8,7 +9,6 @@ import {
   BeakerIcon,
   XMarkIcon
 } from '@heroicons/react/24/solid';
-import { useState } from 'react';
 
 interface WeatherAlert {
   id: string;
@@ -25,10 +25,10 @@ interface Props {
   alerts: WeatherAlert[];
 }
 
-export default function SmartWeatherAlerts({ alerts }: Props) {
+const SmartWeatherAlerts = React.memo(function SmartWeatherAlerts({ alerts }: Props) {
   const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
-  const getSeverityStyle = (severity: string) => {
+  const getSeverityStyle = useCallback((severity: string) => {
     switch (severity) {
       case 'low':
         return {
@@ -63,9 +63,9 @@ export default function SmartWeatherAlerts({ alerts }: Props) {
           icon: 'text-gray-600'
         };
     }
-  };
+  }, []);
 
-  const getAlertIcon = (type: string) => {
+  const getAlertIcon = useCallback((type: string) => {
     switch (type) {
       case 'heavy-rain':
         return '🌧️';
@@ -86,13 +86,22 @@ export default function SmartWeatherAlerts({ alerts }: Props) {
       default:
         return '⚠️';
     }
-  };
+  }, []);
 
-  const handleDismiss = (alertId: string) => {
-    setDismissedAlerts([...dismissedAlerts, alertId]);
-  };
+  const handleDismiss = useCallback((alertId: string) => {
+    setDismissedAlerts(prev => [...prev, alertId]);
+  }, []);
 
-  const activeAlerts = alerts.filter(alert => !dismissedAlerts.includes(alert.id));
+  const activeAlerts = useMemo(() => 
+    alerts.filter(alert => !dismissedAlerts.includes(alert.id)),
+    [alerts, dismissedAlerts]
+  );
+
+  const severityCounts = useMemo(() => ({
+    low: activeAlerts.filter(a => a.severity === 'low').length,
+    moderate: activeAlerts.filter(a => a.severity === 'moderate').length,
+    high: activeAlerts.filter(a => a.severity === 'high').length
+  }), [activeAlerts]);
 
   if (activeAlerts.length === 0) {
     return (
@@ -187,23 +196,25 @@ export default function SmartWeatherAlerts({ alerts }: Props) {
       <div className="mt-6 grid grid-cols-3 gap-4">
         <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200">
           <div className="text-2xl font-bold text-blue-700">
-            {activeAlerts.filter(a => a.severity === 'low').length}
+            {severityCounts.low}
           </div>
           <div className="text-xs text-blue-600 font-semibold">Low Severity</div>
         </div>
         <div className="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-200">
           <div className="text-2xl font-bold text-yellow-700">
-            {activeAlerts.filter(a => a.severity === 'moderate').length}
+            {severityCounts.moderate}
           </div>
           <div className="text-xs text-yellow-600 font-semibold">Moderate</div>
         </div>
         <div className="bg-red-50 rounded-xl p-4 text-center border border-red-200">
           <div className="text-2xl font-bold text-red-700">
-            {activeAlerts.filter(a => a.severity === 'high').length}
+            {severityCounts.high}
           </div>
           <div className="text-xs text-red-600 font-semibold">High Severity</div>
         </div>
       </div>
     </motion.div>
   );
-}
+});
+
+export default SmartWeatherAlerts;

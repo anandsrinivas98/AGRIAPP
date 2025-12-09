@@ -53,14 +53,9 @@ const MarketAnalytics = dynamic(() => import('@/components/marketplace/MarketAna
   ssr: false
 });
 
-interface MarketData {
-  lastUpdated: string;
-  status: string;
-}
-
 export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState('overview');
-  const [marketData, setMarketData] = useState<MarketData | null>(null);
+  const [marketData, setMarketData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const tabs = [

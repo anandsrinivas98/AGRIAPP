@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   LineChart, 
@@ -15,62 +15,39 @@ import {
   ArrowDownIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
+import { marketDataService } from '@/lib/services/marketDataService';
+import { formatINR } from '@/lib/utils/currencyFormatter';
+import { MarketOverview as MarketOverviewType } from '@/lib/types/marketData';
 
-export default function MarketOverview() {
-  const [timeframe, setTimeframe] = useState('7d');
-  const [priceData, setPriceData] = useState([]);
-  const [marketMetrics, setMarketMetrics] = useState([]);
+const MarketOverview = React.memo(function MarketOverview() {
+  const [timeframe, setTimeframe] = useState<'7d' | '30d'>('7d');
+  const [priceData, setPriceData] = useState<any[]>([]);
+  const [marketMetrics, setMarketMetrics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMarketOverview();
-  }, [timeframe]);
-
-  const fetchMarketOverview = async () => {
+  const fetchMarketOverview = useCallback(async () => {
     setLoading(true);
     try {
-      // Generate price data immediately for faster initial render
-      const days = timeframe === '7d' ? 7 : 30;
-      const mockData = Array.from({ length: days }, (_, i) => ({
-        date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-        wheat: 250 + Math.random() * 50,
-        corn: 180 + Math.random() * 30,
-        soybeans: 420 + Math.random() * 80,
-        rice: 320 + Math.random() * 60,
-      }));
-      setPriceData(mockData);
-
-      // Set initial metrics immediately
-      setMarketMetrics([
-        { name: 'Wheat', price: 275.50, change: 2.3, volume: '1.2M tons', sentiment: 'bullish', color: '#10B981' },
-        { name: 'Corn', price: 195.75, change: -1.8, volume: '2.1M tons', sentiment: 'bearish', color: '#F59E0B' },
-        { name: 'Soybeans', price: 465.20, change: 4.2, volume: '850K tons', sentiment: 'bullish', color: '#8B5CF6' },
-        { name: 'Rice', price: 340.80, change: 0.9, volume: '1.8M tons', sentiment: 'neutral', color: '#06B6D4' },
-      ]);
+      // Fetch real market overview data from Indian APIs
+      const overview = await marketDataService.getMarketOverview(timeframe);
       
+      setPriceData(overview.priceData);
+      setMarketMetrics(overview.metrics);
       setLoading(false);
-
-      // Fetch from API in background to update with real data
-      try {
-        const response = await fetch('http://localhost:5000/api/marketplace/overview');
-        const result = await response.json();
-        
-        if (result.success) {
-          setMarketMetrics(result.data.metrics);
-        }
-      } catch (apiError) {
-        console.log('Using cached data, API unavailable');
-      }
     } catch (error) {
       console.error('Failed to fetch market overview:', error);
       setLoading(false);
     }
-  };
+  }, [timeframe]);
 
-  const timeframes = [
+  useEffect(() => {
+    fetchMarketOverview();
+  }, [fetchMarketOverview]);
+
+  const timeframes = useMemo(() => [
     { id: '7d', label: '7 Days' },
     { id: '30d', label: '30 Days' },
-  ];
+  ], []);
 
   if (loading) {
     return (
@@ -91,7 +68,7 @@ export default function MarketOverview() {
           {timeframes.map((tf) => (
             <button
               key={tf.id}
-              onClick={() => setTimeframe(tf.id)}
+              onClick={() => setTimeframe(tf.id as '7d' | '30d')}
               className={`px-6 py-2.5 rounded-lg font-semibold text-sm transition-all ${
                 timeframe === tf.id
                   ? 'bg-green-600 text-white shadow-md'
@@ -126,7 +103,7 @@ export default function MarketOverview() {
             <div className="space-y-3">
               <div className="flex items-baseline justify-between">
                 <span className="text-3xl font-bold text-gray-900">
-                  ${metric.price.toFixed(2)}
+                  {formatINR(metric.price)}
                 </span>
                 <div className={`flex items-center space-x-1 px-2 py-1 rounded-lg ${
                   metric.change >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
@@ -234,4 +211,6 @@ export default function MarketOverview() {
       </motion.div>
     </div>
   );
-}
+});
+
+export default MarketOverview;

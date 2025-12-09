@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   CheckCircleIcon, 
@@ -26,7 +27,7 @@ interface Props {
   weeklyData: DailyData[];
 }
 
-export default function WeeklyForecast({ weeklyData }: Props) {
+const WeeklyForecast = React.memo(function WeeklyForecast({ weeklyData }: Props) {
   const getSuitabilityBadge = (suitability: string) => {
     switch (suitability) {
       case 'good':
@@ -172,4 +173,6 @@ export default function WeeklyForecast({ weeklyData }: Props) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default WeeklyForecast;

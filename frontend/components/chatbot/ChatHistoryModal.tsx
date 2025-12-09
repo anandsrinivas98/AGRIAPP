@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   XMarkIcon, 
@@ -29,7 +30,9 @@ interface ChatHistoryModalProps {
   onLoadSession?: (sessionId: string) => void;
 }
 
-export default function ChatHistoryModal({ 
+
+
+const ChatHistoryModal = React.memo(function ChatHistoryModal({ 
   isOpen, 
   onClose, 
   currentSessionId,
@@ -41,14 +44,7 @@ export default function ChatHistoryModal({
   const [isLoading, setIsLoading] = useState(false);
   const [view, setView] = useState<'sessions' | 'history'>('sessions');
 
-  // Load user sessions
-  useEffect(() => {
-    if (isOpen) {
-      loadSessions();
-    }
-  }, [isOpen]);
-
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await fetch('http://localhost:5000/api/chatbot/sessions', {
@@ -69,9 +65,9 @@ export default function ChatHistoryModal({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const loadSessionHistory = async (sessionId: string) => {
+  const loadSessionHistory = useCallback(async (sessionId: string) => {
     try {
       setIsLoading(true);
       const response = await fetch(`http://localhost:5000/api/chatbot/history/${sessionId}`, {
@@ -94,9 +90,9 @@ export default function ChatHistoryModal({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const deleteSession = async (sessionId: string) => {
+  const deleteSession = useCallback(async (sessionId: string) => {
     if (!confirm('Are you sure you want to delete this conversation?')) return;
 
     try {
@@ -120,7 +116,7 @@ export default function ChatHistoryModal({
       console.error('Failed to delete session:', error);
       toast.error('Failed to delete conversation');
     }
-  };
+  }, [loadSessions, selectedSession, setView, setSelectedSession]);
 
   return (
     <AnimatePresence>
@@ -249,15 +245,10 @@ export default function ChatHistoryModal({
                     ← Back to all conversations
                   </button>
                   
-                  <div className="space-y-3">
+                  {/* Chat History */}
+                  <div className="h-96 overflow-y-auto space-y-4">
                     {history.map((msg, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: msg.role === 'user' ? 20 : -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
+                      <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} px-4`}>
                         <div
                           className={`max-w-[80%] p-4 rounded-2xl ${
                             msg.role === 'user'
@@ -272,7 +263,7 @@ export default function ChatHistoryModal({
                             {msg.timestamp}
                           </p>
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -300,4 +291,6 @@ export default function ChatHistoryModal({
       )}
     </AnimatePresence>
   );
-}
+});
+
+export default ChatHistoryModal;

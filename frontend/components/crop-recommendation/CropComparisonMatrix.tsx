@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowUpIcon, 
@@ -13,8 +14,52 @@ interface CropComparisonMatrixProps {
   onSelectCrop: (crop: any) => void;
 }
 
-export default function CropComparisonMatrix({ crops, onSelectCrop }: CropComparisonMatrixProps) {
-  const comparisonData = crops.map(crop => ({
+const CropComparisonMatrix = React.memo(function CropComparisonMatrix({ crops, onSelectCrop }: CropComparisonMatrixProps) {
+  const getWaterNeed = useCallback((crop: string) => {
+    const needs: any = {
+      'Rice': 'Very High',
+      'Wheat': 'Medium',
+      'Corn': 'Medium',
+      'Cotton': 'High',
+      'Sugarcane': 'Very High'
+    };
+    return needs[crop] || 'Medium';
+  }, []);
+
+  const getDuration = useCallback((crop: string) => {
+    const durations: any = {
+      'Rice': '120-150 days',
+      'Wheat': '110-130 days',
+      'Corn': '90-120 days',
+      'Cotton': '150-180 days',
+      'Sugarcane': '12-18 months'
+    };
+    return durations[crop] || '90-120 days';
+  }, []);
+
+  const getSeason = useCallback((crop: string) => {
+    const seasons: any = {
+      'Rice': 'Kharif',
+      'Wheat': 'Rabi',
+      'Corn': 'Kharif',
+      'Cotton': 'Kharif',
+      'Sugarcane': 'Year-round'
+    };
+    return seasons[crop] || 'Kharif';
+  }, []);
+
+  const getRiskLevel = useCallback((crop: string) => {
+    const risks: any = {
+      'Rice': 'Medium',
+      'Wheat': 'Low',
+      'Corn': 'Medium',
+      'Cotton': 'High',
+      'Sugarcane': 'Medium'
+    };
+    return risks[crop] || 'Medium';
+  }, []);
+
+  const comparisonData = useMemo(() => crops.map(crop => ({
     name: crop.crop,
     confidence: crop.confidence,
     yield: crop.yield || '25 quintals/acre',
@@ -24,51 +69,7 @@ export default function CropComparisonMatrix({ crops, onSelectCrop }: CropCompar
     season: getSeason(crop.crop),
     riskLevel: getRiskLevel(crop.crop),
     soilMatch: Math.round(crop.confidence * 0.9)
-  }));
-
-  function getWaterNeed(crop: string) {
-    const needs: any = {
-      'Rice': 'Very High',
-      'Wheat': 'Medium',
-      'Corn': 'Medium',
-      'Cotton': 'High',
-      'Sugarcane': 'Very High'
-    };
-    return needs[crop] || 'Medium';
-  }
-
-  function getDuration(crop: string) {
-    const durations: any = {
-      'Rice': '120-150 days',
-      'Wheat': '110-130 days',
-      'Corn': '90-120 days',
-      'Cotton': '150-180 days',
-      'Sugarcane': '12-18 months'
-    };
-    return durations[crop] || '90-120 days';
-  }
-
-  function getSeason(crop: string) {
-    const seasons: any = {
-      'Rice': 'Kharif',
-      'Wheat': 'Rabi',
-      'Corn': 'Kharif',
-      'Cotton': 'Kharif',
-      'Sugarcane': 'Year-round'
-    };
-    return seasons[crop] || 'Kharif';
-  }
-
-  function getRiskLevel(crop: string) {
-    const risks: any = {
-      'Rice': 'Medium',
-      'Wheat': 'Low',
-      'Corn': 'Medium',
-      'Cotton': 'High',
-      'Sugarcane': 'Medium'
-    };
-    return risks[crop] || 'Medium';
-  }
+  })), [crops, getWaterNeed, getDuration, getSeason, getRiskLevel]);
 
   const getRiskColor = (risk: string) => {
     if (risk === 'Low') return 'text-green-600 bg-green-100';
@@ -235,4 +236,6 @@ export default function CropComparisonMatrix({ crops, onSelectCrop }: CropCompar
       </div>
     </div>
   );
-}
+});
+
+export default CropComparisonMatrix;

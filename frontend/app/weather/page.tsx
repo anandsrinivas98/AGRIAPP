@@ -9,7 +9,7 @@ import WeeklyForecast from '@/components/weather/WeeklyForecast';
 import CropSpecificAdvice from '@/components/weather/CropSpecificAdvice';
 import SmartWeatherAlerts from '@/components/weather/SmartWeatherAlerts';
 import IrrigationPlanner from '@/components/weather/IrrigationPlanner';
-import WeatherTrendAnalytics from '@/components/weather/WeatherTrendAnalytics';
+import WeatherTrendAnalyticsDynamic from '@/components/weather/WeatherTrendAnalyticsDynamic';
 import WeatherTaskRecommendations from '@/components/weather/WeatherTaskRecommendations';
 import SoilWeatherImpact from '@/components/weather/SoilWeatherImpact';
 import WeatherReportDownload from '@/components/weather/WeatherReportDownload';
@@ -156,7 +156,8 @@ export default function WeatherPage() {
         title: 'High Wind Alert',
         message: `Wind speeds at ${current.windSpeed} km/h`,
         actionableTips: ['Postpone pesticide spraying', 'Secure loose equipment', 'Check greenhouse structures', 'Delay irrigation if using sprinklers'],
-        timestamp: 'Now'
+        timestamp: 'Now',
+        icon: '💨'
       });
     }
     
@@ -168,7 +169,8 @@ export default function WeatherPage() {
         title: 'Heavy Rainfall Warning',
         message: current.rainfall > 10 ? `${current.rainfall}mm rainfall recorded` : 'Heavy rain expected soon',
         actionableTips: ['Ensure proper drainage', 'Delay fertilizer application', 'Harvest mature crops if possible', 'Protect seedlings', 'Check for waterlogging'],
-        timestamp: 'Now'
+        timestamp: 'Now',
+        icon: '🌧️'
       });
     }
     
@@ -180,7 +182,8 @@ export default function WeatherPage() {
         title: 'High Humidity Notice',
         message: `Humidity at ${current.humidity}%`,
         actionableTips: ['Monitor for fungal diseases', 'Improve air circulation', 'Apply preventive fungicides', 'Check crops for disease symptoms'],
-        timestamp: 'Now'
+        timestamp: 'Now',
+        icon: '💧'
       });
     }
     
@@ -192,7 +195,8 @@ export default function WeatherPage() {
         title: 'Heatwave Warning',
         message: `Temperature at ${current.temperature}°C`,
         actionableTips: ['Increase irrigation frequency', 'Provide shade for sensitive crops', 'Monitor for heat stress', 'Avoid midday field work'],
-        timestamp: 'Now'
+        timestamp: 'Now',
+        icon: '🌡️'
       });
     }
     
@@ -204,7 +208,8 @@ export default function WeatherPage() {
         title: 'High UV Index',
         message: `UV Index at ${current.uvIndex}`,
         actionableTips: ['Wear protective clothing', 'Use sunscreen', 'Take breaks in shade', 'Avoid prolonged sun exposure'],
-        timestamp: 'Now'
+        timestamp: 'Now',
+        icon: '☀️'
       });
     }
     
@@ -317,7 +322,7 @@ export default function WeatherPage() {
                 <SoilWeatherImpact data={weatherData.soil} />
 
                 {/* 8. Weather Trend Analytics */}
-                <WeatherTrendAnalytics 
+                <WeatherTrendAnalyticsDynamic 
                   trendData={weatherData.trends.data}
                   insights={weatherData.trends.insights}
                 />
