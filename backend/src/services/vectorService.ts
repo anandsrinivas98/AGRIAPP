@@ -6,12 +6,16 @@ import path from 'path';
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-// Initialize ChromaDB Cloud client
-const chromaClient = new CloudClient({
-  apiKey: process.env.CHROMA_API_KEY || '',
-  tenant: process.env.CHROMA_TENANT || '',
-  database: process.env.CHROMA_DATABASE || ''
-});
+// Initialize ChromaDB Cloud client only if configured
+let chromaClient: CloudClient | null = null;
+
+if (process.env.CHROMA_API_KEY && process.env.CHROMA_TENANT && process.env.CHROMA_DATABASE) {
+  chromaClient = new CloudClient({
+    apiKey: process.env.CHROMA_API_KEY,
+    tenant: process.env.CHROMA_TENANT,
+    database: process.env.CHROMA_DATABASE
+  });
+}
 
 interface VectorDocument {
   id: string;
@@ -34,7 +38,7 @@ class VectorService {
    */
   async initialize(): Promise<void> {
     // Check if ChromaDB Cloud is configured
-    if (!process.env.CHROMA_API_KEY || !process.env.CHROMA_TENANT || !process.env.CHROMA_DATABASE) {
+    if (!chromaClient) {
       console.log('ℹ️  ChromaDB Cloud not configured - using fallback RAG system');
       return;
     }

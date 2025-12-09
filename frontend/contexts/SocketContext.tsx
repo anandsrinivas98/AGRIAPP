@@ -25,24 +25,40 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     if (isAuthenticated && user) {
       // Initialize socket connection
       const token = localStorage.getItem('token');
+      
+      // Only connect if we have a valid token
+      if (!token) {
+        console.log('No token available, skipping socket connection');
+        return;
+      }
+
       const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000', {
         auth: {
           token,
         },
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5,
       });
 
       newSocket.on('connect', () => {
-        console.log('Connected to server');
+        console.log('✅ Connected to server');
         setIsConnected(true);
       });
 
       newSocket.on('disconnect', () => {
-        console.log('Disconnected from server');
+        console.log('⚠️ Disconnected from server');
         setIsConnected(false);
       });
 
       newSocket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
+        // Silently handle authentication errors for unauthenticated users
+        if (error.message === 'Authentication error') {
+          console.log('Socket authentication pending - user may need to log in');
+        } else {
+          console.error('Connection error:', error);
+        }
         setIsConnected(false);
       });
 

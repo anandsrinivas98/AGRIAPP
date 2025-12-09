@@ -23,13 +23,40 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
+interface PriceHistoryData {
+  date: string;
+  wheat: number;
+  corn: number;
+  soybeans: number;
+}
+
+interface VolumeData {
+  crop: string;
+  volume: number;
+  value: number;
+}
+
+interface MarketShareData {
+  name: string;
+  value: number;
+}
+
+interface InsightData {
+  id: number;
+  title: string;
+  description: string;
+  trend: 'up' | 'down' | 'neutral';
+  impact: string;
+  percentage: number;
+}
+
 export default function MarketAnalytics() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('30d');
-  const [priceHistory, setPriceHistory] = useState([]);
-  const [volumeData, setVolumeData] = useState([]);
-  const [marketShare, setMarketShare] = useState([]);
-  const [insights, setInsights] = useState([]);
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryData[]>([]);
+  const [volumeData, setVolumeData] = useState<VolumeData[]>([]);
+  const [marketShare, setMarketShare] = useState<MarketShareData[]>([]);
+  const [insights, setInsights] = useState<InsightData[]>([]);
 
   const COLORS = ['#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EF4444'];
 
@@ -65,12 +92,12 @@ export default function MarketAnalytics() {
         { name: 'Others', value: 10 },
       ];
 
-      const mockInsights = [
+      const mockInsights: InsightData[] = [
         {
           id: 1,
           title: 'Wheat Prices Trending Up',
           description: 'Wheat prices have increased by 8.5% over the last 30 days due to strong export demand.',
-          trend: 'up',
+          trend: 'up' as const,
           impact: 'high',
           percentage: 8.5
         },
@@ -78,7 +105,7 @@ export default function MarketAnalytics() {
           id: 2,
           title: 'Corn Volume Surge',
           description: 'Trading volume for corn has reached record highs with 2.1M tons traded this month.',
-          trend: 'up',
+          trend: 'up' as const,
           impact: 'medium',
           percentage: 15.3
         },
@@ -86,7 +113,7 @@ export default function MarketAnalytics() {
           id: 3,
           title: 'Soybean Market Stabilizing',
           description: 'After recent volatility, soybean prices are showing signs of stabilization.',
-          trend: 'neutral',
+          trend: 'neutral' as const,
           impact: 'low',
           percentage: 1.2
         }

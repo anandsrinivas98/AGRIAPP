@@ -58,6 +58,7 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Security middleware
 app.use(helmet());
+console.log('🔧 CORS configured for origin:', config.frontend.url);
 app.use(cors({
   origin: config.frontend.url,
   credentials: true,
@@ -148,6 +149,15 @@ server.listen(PORT, async () => {
   
   // Initialize services after server starts
   await initializeServices();
+  
+  // Initialize labour scheduling alert system
+  try {
+    const { default: labourSchedulingService } = await import('./services/labourSchedulingService');
+    labourSchedulingService.initializeAlertSystem();
+    console.log('✅ Labour scheduling alert system initialized');
+  } catch (error) {
+    console.error('⚠️  Labour scheduling initialization failed:', error);
+  }
 });
 
 // Graceful shutdown

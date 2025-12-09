@@ -48,28 +48,28 @@ function DashboardContent() {
       href: '/features/crop-planning'
     },
     {
-      title: 'Labour Scheduling & Alerts',
-      description: 'Receive real-time updates related to weather, jobs, government subsidies and more to optimize your operations.',
+      title: 'Labour Scheduling & Management',
+      description: 'Optimize workforce allocation, track shifts, and get automated alerts for labor shortages and overtime.',
       emoji: '👷',
       icon: BellAlertIcon,
-      badge: 'Real-time',
-      tags: ['Push Notifications', 'SMS Alerts'],
+      badge: 'AI-Powered',
+      tags: ['Auto-Scheduling', 'Predictive Analytics'],
       gradient: 'from-orange-400 to-red-600',
       bgGradient: 'from-orange-50 to-red-50',
       iconColor: 'text-orange-600',
-      href: '/features/labour-alerts'
+      href: '/features/labor-scheduling'
     },
     {
       title: 'Farmer Forum',
-      description: 'Connect with other farmers, share advice, and discuss tips for improving yields and efficiency.',
+      description: 'Connect with farmers, share knowledge, buy/sell equipment, read expert articles, and join live sessions.',
       emoji: '💬',
       icon: ChatBubbleLeftRightIcon,
-      badge: 'Community',
-      tags: ['Multi-language', 'Active Users'],
-      gradient: 'from-purple-400 to-pink-600',
-      bgGradient: 'from-purple-50 to-pink-50',
-      iconColor: 'text-purple-600',
-      href: '/features/forum'
+      badge: 'NEW',
+      tags: ['Discussions', 'Marketplace', 'Experts'],
+      gradient: 'from-green-400 to-emerald-600',
+      bgGradient: 'from-green-50 to-emerald-50',
+      iconColor: 'text-green-600',
+      href: '/features/farmer-forum'
     },
     {
       title: 'Weather Check',

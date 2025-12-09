@@ -8,9 +8,11 @@ import weatherRoutes from './weather';
 import calendarRoutes from './calendar';
 import forumRoutes from './forum';
 import labourRoutes from './labour';
+import labourSchedulingRoutes from './labourScheduling';
 import chatRoutes from './chat';
 import marketplaceRoutes from './marketplace';
 import chatbotRoutes from './chatbot';
+import cropGuideRoutes from './cropGuide';
 
 const router = Router();
 
@@ -53,8 +55,10 @@ router.use('/weather', weatherRoutes);
 router.use('/calendar', calendarRoutes);
 router.use('/forum', forumRoutes);
 router.use('/labour', labourRoutes);
+router.use('/labour-scheduling', labourSchedulingRoutes);
 router.use('/chat', chatRoutes);
 router.use('/marketplace', marketplaceRoutes);
 router.use('/chatbot', chatbotRoutes);
+router.use('/crop-guide', cropGuideRoutes);
 
 export default router;
