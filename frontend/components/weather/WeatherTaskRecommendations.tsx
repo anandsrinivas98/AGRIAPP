@@ -1,4 +1,5 @@
 'use client';
+import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   CheckCircleIcon,
@@ -23,8 +24,8 @@ interface Props {
   weeklyTasks: Task[];
 }
 
-export default function WeatherTaskRecommendations({ dailyTasks, weeklyTasks }: Props) {
-  const getPriorityStyle = (priority: string) => {
+const WeatherTaskRecommendations = React.memo(function WeatherTaskRecommendations({ dailyTasks, weeklyTasks }: Props) {
+  const getPriorityStyle = useCallback((priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-700 border-red-300';
@@ -35,9 +36,9 @@ export default function WeatherTaskRecommendations({ dailyTasks, weeklyTasks }: 
       default:
         return 'bg-gray-100 text-gray-700 border-gray-300';
     }
-  };
+  }, []);
 
-  const getSuitabilityBadge = (suitability: string) => {
+  const getSuitabilityBadge = useCallback((suitability: string) => {
     switch (suitability) {
       case 'excellent':
         return { text: 'Excellent', color: 'bg-green-500 text-white' };
@@ -50,7 +51,7 @@ export default function WeatherTaskRecommendations({ dailyTasks, weeklyTasks }: 
       default:
         return { text: 'Unknown', color: 'bg-gray-500 text-white' };
     }
-  };
+  }, []);
 
   return (
     <motion.div
@@ -190,4 +191,6 @@ export default function WeatherTaskRecommendations({ dailyTasks, weeklyTasks }: 
       </div>
     </motion.div>
   );
-}
+});
+
+export default WeatherTaskRecommendations;

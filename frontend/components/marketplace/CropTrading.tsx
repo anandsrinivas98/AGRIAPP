@@ -1,120 +1,59 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MagnifyingGlassIcon,
   MapPinIcon,
   ClockIcon,
   UserIcon,
-  PhoneIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline';
+import { formatINR } from '@/lib/utils/currencyFormatter';
+import { CropListing } from '@/lib/types/marketData';
+// @ts-ignore
+import { marketDataService } from '@/lib/services/marketDataService';
 
-interface CropListing {
-  id: string;
-  cropType: string;
-  quantity: number;
-  unit: string;
-  pricePerUnit: number;
-  totalPrice: number;
-  quality: string;
-  harvestDate: string;
-  location: string;
-  seller: {
-    name: string;
-    rating: number;
-    verified: boolean;
-    phone: string;
-  };
-  description: string;
-  status: 'available' | 'pending' | 'sold';
-  expiresIn: string;
-}
-
-export default function CropTrading() {
+const CropTrading = React.memo(function CropTrading() {
   const [listings, setListings] = useState<CropListing[]>([]);
-  const [filteredListings, setFilteredListings] = useState<CropListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCrop, setSelectedCrop] = useState('all');
   const [selectedQuality, setSelectedQuality] = useState('all');
 
-  const cropTypes = ['all', 'wheat', 'corn', 'soybeans', 'rice', 'cotton'];
-  const qualities = ['all', 'premium', 'grade-a', 'grade-b', 'standard'];
+  const cropTypes = useMemo(() => ['all', 'wheat', 'corn', 'soybeans', 'rice', 'cotton'], []);
+  const qualities = useMemo(() => ['all', 'premium', 'grade-a', 'grade-b', 'standard'], []);
 
-  useEffect(() => {
-    fetchListings();
-  }, []);
-
-  useEffect(() => {
-    filterListings();
-  }, [listings, searchTerm, selectedCrop, selectedQuality]);
-
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     try {
       setLoading(true);
       
-      const mockListings: CropListing[] = [
-        {
-          id: '1',
-          cropType: 'wheat',
-          quantity: 5000,
-          unit: 'bushels',
-          pricePerUnit: 6.50,
-          totalPrice: 32500,
-          quality: 'premium',
-          harvestDate: '2024-09-15',
-          location: 'Kansas, USA',
-          seller: {
-            name: 'Green Valley Farms',
-            rating: 4.8,
-            verified: true,
-            phone: '+1-555-0123'
-          },
-          description: 'High-quality winter wheat, properly stored and tested.',
-          status: 'available',
-          expiresIn: '3 days'
-        },
-        {
-          id: '2',
-          cropType: 'corn',
-          quantity: 10000,
-          unit: 'bushels',
-          pricePerUnit: 4.25,
-          totalPrice: 42500,
-          quality: 'grade-a',
-          harvestDate: '2024-10-01',
-          location: 'Iowa, USA',
-          seller: {
-            name: 'Midwest Grain Co.',
-            rating: 4.6,
-            verified: true,
-            phone: '+1-555-0456'
-          },
-          description: 'Fresh corn harvest, excellent moisture content.',
-          status: 'available',
-          expiresIn: '5 days'
-        }
-      ];
+      // Fetch real crop listings from Indian market APIs
+      const realListings = await marketDataService.getCropListings({
+        cropType: selectedCrop === 'all' ? undefined : selectedCrop,
+        quality: selectedQuality === 'all' ? undefined : selectedQuality,
+      });
       
-      setListings(mockListings);
+      setListings(realListings);
     } catch (error) {
       console.error('Failed to fetch listings:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCrop, selectedQuality]);
 
-  const filterListings = () => {
-    let filtered = listings.filter(listing => {
+  const filteredListings = useMemo(() => {
+    return listings.filter(listing => {
       const matchesSearch = listing.cropType.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            listing.seller.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCrop = selectedCrop === 'all' || listing.cropType === selectedCrop;
       const matchesQuality = selectedQuality === 'all' || listing.quality === selectedQuality;
       return matchesSearch && matchesCrop && matchesQuality;
     });
-    setFilteredListings(filtered);
-  };
+  }, [listings, searchTerm, selectedCrop, selectedQuality]);
+
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
 
   if (loading) {
     return (
@@ -195,7 +134,7 @@ export default function CropTrading() {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-900">
-                  ${listing.pricePerUnit}
+                  {formatINR(listing.pricePerUnit)}
                 </div>
                 <div className="text-sm text-gray-600">per {listing.unit}</div>
               </div>
@@ -208,7 +147,7 @@ export default function CropTrading() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Total Value:</span>
-                <span className="font-medium text-green-600">${listing.totalPrice.toLocaleString()}</span>
+                <span className="font-medium text-green-600">{formatINR(listing.totalPrice)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Location:</span>
@@ -264,4 +203,6 @@ export default function CropTrading() {
       )}
     </div>
   );
-}
+});
+
+export default CropTrading;

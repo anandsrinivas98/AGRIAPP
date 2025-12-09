@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,7 +23,7 @@ import {
 function DashboardContent() {
   const { user } = useAuth();
 
-  const featureCards = [
+  const featureCards = useMemo(() => [
     {
       title: 'Plantation Guidance',
       description: 'Receive expert advice on plantation techniques, crop selection, and sustainable farming methods.',
@@ -179,7 +180,7 @@ function DashboardContent() {
       iconColor: 'text-yellow-700',
       href: '/features/price-tracker'
     },
-  ];
+  ], []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">

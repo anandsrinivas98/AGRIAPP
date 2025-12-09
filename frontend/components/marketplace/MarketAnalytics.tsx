@@ -22,14 +22,16 @@ import {
   ChartBarIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import { marketDataService } from '@/lib/services/marketDataService';
+import { formatINR, formatINRWithUnits } from '@/lib/utils/currencyFormatter';
 
 export default function MarketAnalytics() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('30d');
-  const [priceHistory, setPriceHistory] = useState([]);
-  const [volumeData, setVolumeData] = useState([]);
-  const [marketShare, setMarketShare] = useState([]);
-  const [insights, setInsights] = useState([]);
+  const [priceHistory, setPriceHistory] = useState<any[]>([]);
+  const [volumeData, setVolumeData] = useState<any[]>([]);
+  const [marketShare, setMarketShare] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any[]>([]);
 
   const COLORS = ['#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EF4444'];
 
@@ -41,61 +43,13 @@ export default function MarketAnalytics() {
     try {
       setLoading(true);
 
-      const days = timeframe === '7d' ? 7 : 30;
-      const mockPriceHistory = Array.from({ length: days }, (_, i) => ({
-        date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        wheat: 250 + Math.random() * 50,
-        corn: 180 + Math.random() * 30,
-        soybeans: 420 + Math.random() * 80,
-      }));
+      // Fetch real market analytics from Indian APIs
+      const analytics = await marketDataService.getMarketAnalytics(timeframe);
 
-      const mockVolumeData = [
-        { crop: 'Wheat', volume: 1200000, value: 330000000 },
-        { crop: 'Corn', volume: 2100000, value: 410000000 },
-        { crop: 'Soybeans', volume: 850000, value: 395000000 },
-        { crop: 'Rice', volume: 1800000, value: 613000000 },
-        { crop: 'Cotton', volume: 650000, value: 53600000 },
-      ];
-
-      const mockMarketShare = [
-        { name: 'Wheat', value: 22 },
-        { name: 'Corn', value: 35 },
-        { name: 'Soybeans', value: 18 },
-        { name: 'Rice', value: 15 },
-        { name: 'Others', value: 10 },
-      ];
-
-      const mockInsights = [
-        {
-          id: 1,
-          title: 'Wheat Prices Trending Up',
-          description: 'Wheat prices have increased by 8.5% over the last 30 days due to strong export demand.',
-          trend: 'up',
-          impact: 'high',
-          percentage: 8.5
-        },
-        {
-          id: 2,
-          title: 'Corn Volume Surge',
-          description: 'Trading volume for corn has reached record highs with 2.1M tons traded this month.',
-          trend: 'up',
-          impact: 'medium',
-          percentage: 15.3
-        },
-        {
-          id: 3,
-          title: 'Soybean Market Stabilizing',
-          description: 'After recent volatility, soybean prices are showing signs of stabilization.',
-          trend: 'neutral',
-          impact: 'low',
-          percentage: 1.2
-        }
-      ];
-
-      setPriceHistory(mockPriceHistory);
-      setVolumeData(mockVolumeData);
-      setMarketShare(mockMarketShare);
-      setInsights(mockInsights);
+      setPriceHistory(analytics.priceHistory);
+      setVolumeData(analytics.volumeData);
+      setMarketShare(analytics.marketShare);
+      setInsights(analytics.insights);
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
     } finally {
@@ -148,7 +102,7 @@ export default function MarketAnalytics() {
             <ChartBarIcon className="w-8 h-8" />
             <ArrowUpIcon className="w-6 h-6" />
           </div>
-          <div className="text-3xl font-bold mb-2">$1.8B</div>
+          <div className="text-3xl font-bold mb-2">{formatINRWithUnits(1800000000)}</div>
           <div className="text-green-100">Total Market Value</div>
           <div className="mt-2 text-sm">+12.5% from last month</div>
         </motion.div>

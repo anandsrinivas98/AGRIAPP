@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
@@ -8,34 +9,34 @@ interface CropSuitabilityBreakdownProps {
   inputData: any;
 }
 
-export default function CropSuitabilityBreakdown({ crop, inputData }: CropSuitabilityBreakdownProps) {
+const CropSuitabilityBreakdown = React.memo(function CropSuitabilityBreakdown({ crop, inputData }: CropSuitabilityBreakdownProps) {
   // Calculate suitability scores
-  const calculateNPKScore = () => {
+  const calculateNPKScore = useCallback(() => {
     const nScore = Math.min((inputData.N / 100) * 100, 100);
     const pScore = Math.min((inputData.P / 100) * 100, 100);
     const kScore = Math.min((inputData.K / 100) * 100, 100);
     return Math.round((nScore + pScore + kScore) / 3);
-  };
+  }, [inputData.N, inputData.P, inputData.K]);
 
-  const calculatePHScore = () => {
+  const calculatePHScore = useCallback(() => {
     const optimalPH = 6.5;
     const diff = Math.abs(inputData.pH - optimalPH);
     return Math.max(0, Math.round(100 - (diff * 20)));
-  };
+  }, [inputData.pH]);
 
-  const calculateRainfallScore = () => {
+  const calculateRainfallScore = useCallback(() => {
     const optimalRainfall = 200;
     const diff = Math.abs(inputData.rainfall - optimalRainfall);
     return Math.max(0, Math.round(100 - (diff / 5)));
-  };
+  }, [inputData.rainfall]);
 
-  const calculateTempScore = () => {
+  const calculateTempScore = useCallback(() => {
     const optimalTemp = 25;
     const diff = Math.abs(inputData.temperature - optimalTemp);
     return Math.max(0, Math.round(100 - (diff * 5)));
-  };
+  }, [inputData.temperature]);
 
-  const factors = [
+  const factors = useMemo(() => [
     {
       name: 'NPK Balance',
       score: calculateNPKScore(),
@@ -71,21 +72,24 @@ export default function CropSuitabilityBreakdown({ crop, inputData }: CropSuitab
       icon: '🏔️',
       optimal: 'Loamy soil preferred'
     }
-  ];
+  ], [calculateNPKScore, calculatePHScore, calculateRainfallScore, calculateTempScore]);
 
-  const overallScore = Math.round(factors.reduce((sum, f) => sum + f.score, 0) / factors.length);
+  const overallScore = useMemo(() => 
+    Math.round(factors.reduce((sum, f) => sum + f.score, 0) / factors.length),
+    [factors]
+  );
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = useCallback((score: number) => {
     if (score >= 75) return 'text-green-600 bg-green-50 border-green-200';
     if (score >= 50) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
     return 'text-red-600 bg-red-50 border-red-200';
-  };
+  }, []);
 
-  const getProgressColor = (score: number) => {
+  const getProgressColor = useCallback((score: number) => {
     if (score >= 75) return 'bg-green-500';
     if (score >= 50) return 'bg-yellow-500';
     return 'bg-red-500';
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -182,4 +186,6 @@ export default function CropSuitabilityBreakdown({ crop, inputData }: CropSuitab
       </div>
     </div>
   );
-}
+});
+
+export default CropSuitabilityBreakdown;

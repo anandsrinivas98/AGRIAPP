@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CropSuitabilityBreakdown from './CropSuitabilityBreakdown';
 import CropComparisonMatrix from './CropComparisonMatrix';
@@ -31,7 +31,7 @@ interface EnhancedRecommendationsProps {
   soilData: any;
 }
 
-export default function EnhancedRecommendations({ 
+const EnhancedRecommendations = React.memo(function EnhancedRecommendations({ 
   recommendations, 
   inputData,
   soilData 
@@ -39,7 +39,7 @@ export default function EnhancedRecommendations({
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedCrop, setSelectedCrop] = useState(recommendations[0]);
 
-  const tabs = [
+  const tabs = useMemo(() => [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'comparison', name: 'Compare Crops', icon: ChartBarIcon },
     { id: 'calendar', name: 'Crop Calendar', icon: CalendarIcon },
@@ -48,7 +48,15 @@ export default function EnhancedRecommendations({
     { id: 'subsidies', name: 'Subsidies', icon: ShieldCheckIcon },
     { id: 'market', name: 'Market Info', icon: TruckIcon },
     { id: 'risks', name: 'Risk Analysis', icon: ExclamationTriangleIcon },
-  ];
+  ], []);
+
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
+
+  const handleCropSelect = useCallback((crop: any) => {
+    setSelectedCrop(crop);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -71,7 +79,7 @@ export default function EnhancedRecommendations({
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-all ${
                   activeTab === tab.id
                     ? 'border-b-2 border-green-600 text-green-600 bg-green-50'
@@ -109,7 +117,7 @@ export default function EnhancedRecommendations({
               {activeTab === 'comparison' && (
                 <CropComparisonMatrix 
                   crops={recommendations.slice(0, 5)}
-                  onSelectCrop={setSelectedCrop}
+                  onSelectCrop={handleCropSelect}
                 />
               )}
 
@@ -149,4 +157,6 @@ export default function EnhancedRecommendations({
       </div>
     </div>
   );
-}
+});
+
+export default EnhancedRecommendations;

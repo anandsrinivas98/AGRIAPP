@@ -19,11 +19,21 @@ export default function HomePage() {
       transition={{ duration: 0.5 }}
       className="min-h-screen"
     >
-      <Hero />
-      <Features />
-      <Stats />
-      <Testimonials />
-      <CTA />
+      <div id="hero">
+        <Hero />
+      </div>
+      <div id="features">
+        <Features />
+      </div>
+      <div id="solutions">
+        <Stats />
+      </div>
+      <div id="about">
+        <Testimonials />
+      </div>
+      <div id="contact">
+        <CTA />
+      </div>
       <Footer />
     </motion.div>
   );

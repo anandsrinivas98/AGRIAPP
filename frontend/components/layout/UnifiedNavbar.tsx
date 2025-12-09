@@ -180,7 +180,7 @@ export default function UnifiedNavbar() {
                         <Menu.Item>
                           {({ active }) => (
                             <Link
-                              href="/profile/edit"
+                              href="/profile"
                               className={`${
                                 active ? 'bg-green-50' : ''
                               } flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 transition-colors`}

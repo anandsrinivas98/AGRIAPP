@@ -1,4 +1,5 @@
 'use client';
+import React, { useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/solid';
 
@@ -17,17 +18,17 @@ interface Props {
   hourlyData: HourlyData[];
 }
 
-export default function HourlyForecast({ hourlyData }: Props) {
+const HourlyForecast = React.memo(function HourlyForecast({ hourlyData }: Props) {
   // Convert 24-hour to 12-hour format with AM/PM
-  const formatTime = (hour: number) => {
+  const formatTime = useCallback((hour: number) => {
     if (hour === 0) return '12:00 AM';
     if (hour === 12) return '12:00 PM';
     if (hour < 12) return `${hour}:00 AM`;
     return `${hour - 12}:00 PM`;
-  };
+  }, []);
 
   // Find best hour for field work (low rain, moderate temp, low wind)
-  const findBestHour = () => {
+  const bestHour = useMemo(() => {
     let bestHour = hourlyData[0];
     let bestScore = 0;
 
@@ -49,9 +50,7 @@ export default function HourlyForecast({ hourlyData }: Props) {
     });
 
     return bestHour;
-  };
-
-  const bestHour = findBestHour();
+  }, [hourlyData]);
 
   return (
     <motion.div
@@ -146,4 +145,6 @@ export default function HourlyForecast({ hourlyData }: Props) {
       </div>
     </motion.div>
   );
-}
+});
+
+export default HourlyForecast;

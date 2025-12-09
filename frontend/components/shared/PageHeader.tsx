@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
@@ -12,7 +13,7 @@ interface PageHeaderProps {
   backText?: string;
 }
 
-export default function PageHeader({ 
+const PageHeader = React.memo(function PageHeader({ 
   title, 
   description, 
   icon, 
@@ -57,4 +58,6 @@ export default function PageHeader({
       </motion.div>
     </div>
   );
-}
+});
+
+export default PageHeader;

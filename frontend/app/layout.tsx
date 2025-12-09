@@ -3,7 +3,8 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
-import UnifiedNavbar from '../components/layout/UnifiedNavbar';
+import { NavigationController } from '../components/navigation';
+import GlobalLoader, { ManualLoader } from '../components/shared/GlobalLoader';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -51,7 +52,9 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <Providers>
-          <UnifiedNavbar />
+          <GlobalLoader />
+          <ManualLoader />
+          <NavigationController />
           {children}
           <Toaster 
             position="top-right"
