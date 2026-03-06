@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authRoutes from './auth';
 import recommendationRoutes from './recommendations';
 import yieldRoutes from './yield';
+import yieldPredictionRoutes from './yieldPredictions';
 import diseaseRoutes from './disease';
 import priceRoutes from './prices';
 import weatherRoutes from './weather';
@@ -49,6 +50,7 @@ router.get('/', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/recommend', recommendationRoutes);
 router.use('/predict', yieldRoutes);
+router.use('/yield-predictions', yieldPredictionRoutes);
 router.use('/detect', diseaseRoutes);
 router.use('/prices', priceRoutes);
 router.use('/weather', weatherRoutes);

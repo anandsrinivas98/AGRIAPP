@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_ENDPOINTS, getDefaultHeaders } from '../lib/config/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -147,8 +148,7 @@ export interface CropGuideData {
 
 class CropGuideService {
   private getAuthHeaders() {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    return getDefaultHeaders();
   }
 
   /**
@@ -157,13 +157,10 @@ class CropGuideService {
   async generateCropGuide(request: CropGuideRequest): Promise<CropGuideData> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/crop-guide/generate`,
+        API_ENDPOINTS.AI.CROP_GUIDE,
         request,
         {
-          headers: {
-            'Content-Type': 'application/json',
-            ...this.getAuthHeaders()
-          }
+          headers: this.getAuthHeaders()
         }
       );
 
@@ -192,7 +189,7 @@ class CropGuideService {
    */
   async quickGenerateCropGuide(cropName: string, region?: string): Promise<CropGuideData> {
     try {
-      const url = `${API_BASE_URL}/api/crop-guide/quick-generate/${encodeURIComponent(cropName)}`;
+      const url = API_ENDPOINTS.AI.CROP_GUIDE_QUICK(cropName);
       const params = region ? { region } : {};
 
       const response = await axios.get(url, {
@@ -225,7 +222,7 @@ class CropGuideService {
    */
   async getPopularCrops(): Promise<string[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/crop-guide/popular-crops`);
+      const response = await axios.get(API_ENDPOINTS.AI.POPULAR_CROPS);
       
       if (response.data.success) {
         return response.data.data;

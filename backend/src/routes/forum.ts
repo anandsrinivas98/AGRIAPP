@@ -3,7 +3,7 @@ import { body, query } from 'express-validator';
 import forumService from '../services/forumService';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validation';
-import { AuthRequest } from '../types/auth';
+import { AuthRequest } from '../shared/types/auth';
 
 const router = express.Router();
 

@@ -3,7 +3,7 @@ import { body, query } from 'express-validator';
 import labourSchedulingService from '../services/labourSchedulingService';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validation';
-import { AuthRequest } from '../types/auth';
+import { AuthRequest } from '../shared/types/auth';
 
 const router = express.Router();
 

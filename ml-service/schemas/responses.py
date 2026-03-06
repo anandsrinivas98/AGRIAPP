@@ -28,7 +28,9 @@ class YieldPredictionResponse(BaseModel):
     predicted_yield: float
     unit: str
     confidence: float
+    confidence_interval: List[float]
     factors: Optional[Dict[str, Any]] = None
+    timestamp: Optional[str] = None
 
 
 class DiseasePrediction(BaseModel):

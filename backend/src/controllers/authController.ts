@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { config } from '../config';
-import { AuthRequest } from '../types/auth';
+import { AuthRequest } from '../shared/types/auth';
 import { emailService } from '../utils/emailService';
 import { 
   generateOTP, 

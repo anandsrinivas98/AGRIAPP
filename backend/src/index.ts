@@ -16,6 +16,7 @@ import { setupSocketIO } from './services/socketService';
 import { cacheService } from './services/cacheService';
 import { initializeCronJobs } from './services/cronService';
 import routes from './routes';
+import apiV1Routes from './api/v1';
 
 const app = express();
 const server = createServer(app);
@@ -110,7 +111,8 @@ app.get('/health', async (req, res) => {
 });
 
 // Routes
-app.use('/api', routes);
+app.use('/api/v1', apiV1Routes); // New organized API structure
+app.use('/api', routes); // Legacy routes for backward compatibility
 
 // Static files (uploads)
 app.use('/uploads', express.static('uploads'));
@@ -173,3 +175,5 @@ process.on('SIGTERM', async () => {
 });
 
 export { app, io };
+
+

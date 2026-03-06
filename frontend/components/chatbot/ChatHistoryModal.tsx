@@ -67,6 +67,13 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
     }
   }, []);
 
+  // Load sessions when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      loadSessions();
+    }
+  }, [isOpen, loadSessions]);
+
   const loadSessionHistory = useCallback(async (sessionId: string) => {
     try {
       setIsLoading(true);

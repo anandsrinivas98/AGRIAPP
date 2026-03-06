@@ -4,7 +4,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { InlineLoader } from './LoadingSpinner';
 
-interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface LoadingButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
   isLoading?: boolean;
   loadingText?: string;
   children: ReactNode;

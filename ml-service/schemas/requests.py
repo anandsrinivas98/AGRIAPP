@@ -24,9 +24,17 @@ class YieldPredictionRequest(BaseModel):
     area: float = Field(..., description="Area in hectares", gt=0)
     rainfall: float = Field(..., description="Rainfall in mm", ge=0)
     temperature: float = Field(..., description="Temperature in Celsius")
-    N: Optional[float] = Field(None, description="Nitrogen content")
-    P: Optional[float] = Field(None, description="Phosphorus content")
-    K: Optional[float] = Field(None, description="Potassium content")
+    N: Optional[float] = Field(None, description="Nitrogen content", ge=0, le=100)
+    P: Optional[float] = Field(None, description="Phosphorus content", ge=0, le=100)
+    K: Optional[float] = Field(None, description="Potassium content", ge=0, le=100)
+    pH: Optional[float] = Field(None, description="Soil pH level", ge=0, le=14)
+    humidity: Optional[float] = Field(None, description="Humidity percentage", ge=0, le=100)
+    organic_matter: Optional[float] = Field(None, description="Organic matter percentage", ge=0, le=20)
+    irrigation_method: Optional[str] = Field(None, description="Irrigation method")
+    fertilizer_usage: Optional[float] = Field(None, description="Fertilizer usage kg/hectare", ge=0)
+    pesticide_usage: Optional[float] = Field(None, description="Pesticide usage kg/hectare", ge=0)
+    farming_experience: Optional[float] = Field(None, description="Farming experience in years", ge=0)
+    historical_yields: Optional[list] = Field(None, description="Historical yield data")
 
 
 class DiseaseDetectionRequest(BaseModel):

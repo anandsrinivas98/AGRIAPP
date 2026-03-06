@@ -180,14 +180,23 @@ async def predict_yield(request: YieldPredictionRequest):
     try:
         logger.info(f"Processing yield prediction request for crop: {request.crop}")
         
-        # Prepare input features
+        # Prepare input features with enhanced parameters
         features = {
             "crop": request.crop,
             "area": request.area,
-            "avg_rainfall": request.avg_rainfall,
-            "pesticide_usage": request.pesticide_usage,
+            "rainfall": request.rainfall,
             "temperature": request.temperature,
-            "past_yields": request.past_yields or []
+            "N": request.N or 0,
+            "P": request.P or 0,
+            "K": request.K or 0,
+            "pH": request.pH or 7.0,
+            "humidity": request.humidity or 65,
+            "organic_matter": request.organic_matter or 2.0,
+            "irrigation_method": request.irrigation_method or "traditional",
+            "fertilizer_usage": request.fertilizer_usage or 0,
+            "pesticide_usage": request.pesticide_usage or 0,
+            "farming_experience": request.farming_experience or 1,
+            "historical_yields": request.historical_yields or []
         }
         
         # Get prediction
@@ -195,13 +204,15 @@ async def predict_yield(request: YieldPredictionRequest):
         
         logger.info(f"Predicted yield: {prediction['predicted_yield']}")
         
-        return YieldPredictionResponse(
-            predicted_yield=prediction["predicted_yield"],
-            confidence_interval=prediction["confidence_interval"],
-            confidence=prediction["confidence"],
-            factors=prediction.get("factors", {}),
-            timestamp=datetime.now().isoformat()
-        )
+        return {
+            "success": True,
+            "predicted_yield": prediction["predicted_yield"],
+            "unit": prediction["unit"],
+            "confidence": prediction["confidence"],
+            "confidence_interval": prediction["confidence_interval"],
+            "factors": prediction.get("factors", {}),
+            "timestamp": datetime.now().isoformat()
+        }
         
     except Exception as e:
         logger.error(f"Error in yield prediction: {str(e)}")
