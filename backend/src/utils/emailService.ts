@@ -1,13 +1,23 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM_EMAIL = process.env.EMAIL_FROM || 'AgriSense <onboarding@resend.dev>';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FROM_EMAIL = process.env.EMAIL_FROM || 'AgriSense <noreply@agrisense.com>';
+
+// Brevo SMTP config
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_USER, // your Brevo login email
+    pass: process.env.BREVO_SMTP_KEY,  // Brevo SMTP key
+  },
+});
 
 class EmailService {
   async sendVerificationOTP(email: string, otp: string, firstName: string): Promise<boolean> {
     try {
-      await resend.emails.send({
+      await transporter.sendMail({
         from: FROM_EMAIL,
         to: email,
         subject: 'Verify Your AgriSense Account',
@@ -41,7 +51,7 @@ class EmailService {
   async sendPasswordResetEmail(email: string, resetToken: string, firstName: string): Promise<boolean> {
     const resetUrl = `${FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
     try {
-      await resend.emails.send({
+      await transporter.sendMail({
         from: FROM_EMAIL,
         to: email,
         subject: 'Reset Your AgriSense Password',
