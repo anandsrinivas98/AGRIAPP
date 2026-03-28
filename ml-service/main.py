@@ -45,7 +45,14 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5000",
+        "https://agriapp-one.vercel.app",
+        "https://agriapp-k3jd.onrender.com",
+        os.getenv("FRONTEND_URL", ""),
+        os.getenv("BACKEND_URL", ""),
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
