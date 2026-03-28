@@ -151,7 +151,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: config.env === 'production',
-      sameSite: 'strict',
+      sameSite: config.env === 'production' ? 'none' : 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -284,7 +284,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     res.cookie('token', newToken, {
       httpOnly: true,
       secure: config.env === 'production',
-      sameSite: 'strict',
+      sameSite: config.env === 'production' ? 'none' : 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -383,7 +383,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     res.cookie('token', token, {
       httpOnly: true,
       secure: config.env === 'production',
-      sameSite: 'strict',
+      sameSite: config.env === 'production' ? 'none' : 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
