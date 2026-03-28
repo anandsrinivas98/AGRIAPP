@@ -99,7 +99,8 @@ export default function CropRecommendationPage() {
 
     try {
       // Call the real backend API
-      const response = await fetch('http://localhost:5000/api/recommend', {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiBase}/api/recommend`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,10 +165,12 @@ export default function CropRecommendationPage() {
     } catch (error: any) {
       console.error('Error getting recommendations:', error);
       
-      if (error.message.includes('fetch')) {
-        toast.error('Cannot connect to ML service. Please ensure the backend is running on port 5000.');
+      if (error.name === 'TypeError' || error.message.includes('fetch') || error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        toast.error('Service temporarily unavailable. Please try again later.');
+      } else if (error.message.includes('500') || error.message.includes('server')) {
+        toast.error('Something went wrong on our end. Please try again.');
       } else {
-        toast.error(error.message || 'Failed to generate recommendations');
+        toast.error(error.message || 'Failed to generate recommendations. Please try again.');
       }
       
       setRecommendations(null);
