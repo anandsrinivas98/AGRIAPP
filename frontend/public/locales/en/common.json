@@ -1,0 +1,222 @@
+{
+  "hero": {
+    "badge": "AI-Powered Agriculture",
+    "title": {
+      "smart": "Smart",
+      "farming": "Farming",
+      "solutions": "Solutions"
+    },
+    "description": "Revolutionize your farming with AI-powered crop recommendations, yield predictions, and disease detection. Make data-driven decisions for sustainable agriculture.",
+    "cta": {
+      "primary": "Get Started Free",
+      "secondary": "Watch Demo"
+    },
+    "stats": {
+      "farmers": "Farmers",
+      "accuracy": "Accuracy",
+      "yield": "Yield Increase"
+    }
+  },
+  "features": {
+    "title": "Comprehensive Farming Solutions",
+    "subtitle": "Everything you need to make informed decisions and maximize your agricultural productivity",
+    "crop_recommendation": {
+      "title": "Crop Recommendation",
+      "description": "AI-powered suggestions based on soil nutrients, weather conditions, and market demand to optimize your crop selection."
+    },
+    "yield_prediction": {
+      "title": "Yield Prediction",
+      "description": "Accurate forecasting of crop yields using machine learning models trained on historical data and environmental factors."
+    },
+    "disease_detection": {
+      "title": "Disease Detection",
+      "description": "Computer vision technology to identify plant diseases early, with treatment recommendations and prevention strategies."
+    },
+    "crop_planning": {
+      "title": "Crop Planning",
+      "description": "Interactive calendar and timeline management for sowing, irrigation, fertilization, and harvesting schedules."
+    },
+    "price_tracking": {
+      "title": "Price Tracking",
+      "description": "Real-time market price analysis with trends and sell/buy recommendations for optimal profit margins."
+    },
+    "weather_monitoring": {
+      "title": "Weather Monitoring",
+      "description": "Localized weather forecasts, severe weather alerts, and climate data integration for better planning."
+    },
+    "organic_farming": {
+      "title": "Organic Farming Guide",
+      "description": "Comprehensive guides and recommendations for sustainable, organic farming practices and eco-friendly solutions."
+    },
+    "ai_assistant": {
+      "title": "AI Assistant",
+      "description": "Multilingual chatbot with voice support to answer farming questions and provide personalized guidance."
+    },
+    "demo": {
+      "title": "See AgriSense in Action",
+      "description": "Experience the power of AI-driven agriculture with our interactive demo",
+      "cta": "Try Interactive Demo"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "recommendations": "Recommendations",
+    "yield_prediction": "Yield Prediction",
+    "disease_detection": "Disease Detection",
+    "crop_planning": "Crop Planning",
+    "price_tracker": "Price Tracker",
+    "weather": "Weather",
+    "forum": "Community",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your AgriSense account",
+      "email": "Email Address",
+      "password": "Password",
+      "remember": "Remember me",
+      "forgot": "Forgot password?",
+      "submit": "Sign In",
+      "no_account": "Don't have an account?",
+      "register_link": "Register here"
+    },
+    "register": {
+      "title": "Join AgriSense",
+      "subtitle": "Create your account to get started",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number (Optional)",
+      "password": "Password",
+      "confirm_password": "Confirm Password",
+      "terms": "I agree to the Terms of Service and Privacy Policy",
+      "submit": "Create Account",
+      "have_account": "Already have an account?",
+      "login_link": "Sign in here"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "overview": "Farm Overview",
+    "quick_actions": "Quick Actions",
+    "recent_activity": "Recent Activity",
+    "kpis": {
+      "total_yield": "Total Yield",
+      "profit_margin": "Profit Margin",
+      "crop_health": "Crop Health",
+      "weather_alert": "Weather Alert"
+    },
+    "actions": {
+      "get_recommendation": "Get Crop Recommendation",
+      "predict_yield": "Predict Yield",
+      "detect_disease": "Detect Disease",
+      "check_prices": "Check Market Prices"
+    }
+  },
+  "recommendations": {
+    "title": "Crop Recommendations",
+    "subtitle": "Get AI-powered crop suggestions based on your farm conditions",
+    "form": {
+      "soil_nutrients": "Soil Nutrients",
+      "nitrogen": "Nitrogen (N)",
+      "phosphorus": "Phosphorus (P)",
+      "potassium": "Potassium (K)",
+      "ph": "Soil pH",
+      "environmental": "Environmental Conditions",
+      "temperature": "Temperature (°C)",
+      "humidity": "Humidity (%)",
+      "rainfall": "Rainfall (mm)",
+      "farm_details": "Farm Details",
+      "area": "Area (acres)",
+      "season": "Season",
+      "irrigation": "Irrigation Method",
+      "market_demand": "Market Demand",
+      "submit": "Get Recommendations"
+    },
+    "results": {
+      "title": "Recommended Crops",
+      "confidence": "Confidence",
+      "expected_yield": "Expected Yield",
+      "profit_margin": "Profit Margin",
+      "sustainability": "Sustainability Score",
+      "reasons": "Why this crop?",
+      "pros": "Advantages",
+      "cons": "Considerations"
+    }
+  },
+  "stats": {
+    "title": "Trusted by Farmers Worldwide",
+    "subtitle": "Join thousands of farmers who have transformed their agriculture with AgriSense",
+    "farmers": "farmers",
+    "accuracy": "accuracy",
+    "yield_increase": "yield increase",
+    "countries": "countries",
+    "predictions": "AI Predictions Made",
+    "uptime": "System Uptime",
+    "support": "Expert Support"
+  },
+  "testimonials": {
+    "title": "What Farmers Say About AgriSense",
+    "subtitle": "Real stories from farmers who transformed their agriculture with AI",
+    "yield_increase": "Yield Increase",
+    "verified": "Verified Farmer",
+    "trust": "Trusted by agricultural institutions and government bodies"
+  },
+  "footer": {
+    "description": "Empowering farmers worldwide with AI-driven agricultural solutions for sustainable and profitable farming.",
+    "address": "Bangalore, Karnataka, India",
+    "product": "Product",
+    "company": "Company",
+    "resources": "Resources",
+    "legal": "Legal",
+    "links": {
+      "features": "features",
+      "pricing": "pricing",
+      "demo": "demo",
+      "api": "api",
+      "about": "about",
+      "careers": "careers",
+      "blog": "blog",
+      "contact": "contact",
+      "documentation": "documentation",
+      "help_center": "help center",
+      "community": "community",
+      "status": "status",
+      "privacy": "privacy",
+      "terms": "terms",
+      "security": "security",
+      "cookies": "cookies"
+    },
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Get the latest agricultural insights and product updates.",
+      "placeholder": "Enter your email",
+      "subscribe": "Subscribe"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "upload": "Upload",
+    "download": "Download"
+  }
+}
