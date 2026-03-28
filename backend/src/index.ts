@@ -95,6 +95,11 @@ app.get('/swagger.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ status: 'AgriSense API is running', version: '1.0.0' });
+});
+
 // Health check
 app.get('/health', async (req, res) => {
   const cacheHealthy = await cacheService.healthCheck();
