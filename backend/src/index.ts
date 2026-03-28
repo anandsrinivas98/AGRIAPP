@@ -59,9 +59,21 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Security middleware
 app.use(helmet());
-console.log('🔧 CORS configured for origin:', config.frontend.url);
+const allowedOrigins = [
+  config.frontend.url,
+  'https://agriapp-one.vercel.app',
+  /https:\/\/agriapp-.*\.vercel\.app$/,
+  'http://localhost:3000',
+];
+console.log('🔧 CORS configured for origins:', allowedOrigins);
 app.use(cors({
-  origin: config.frontend.url,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow non-browser requests
+    const allowed = allowedOrigins.some(o =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+    callback(null, allowed ? origin : false);
+  },
   credentials: true,
 }));
 
