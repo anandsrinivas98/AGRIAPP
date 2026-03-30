@@ -17,10 +17,9 @@ class GeminiService {
   constructor() {
     // Use latest available models (verified working with your API key)
     const modelOptions = [
-      'gemini-2.5-flash',      // Best: Fast, efficient, great for chat
-      'gemini-2.0-flash',      // Backup: Stable and reliable
-      'gemini-flash-latest',   // Fallback: Always latest Flash
-      'gemini-2.5-flash-lite', // Ultra-fast for simple queries
+      'gemini-2.0-flash',      // Stable and reliable
+      'gemini-1.5-flash',      // Fallback: widely available
+      'gemini-1.5-pro',        // Pro fallback
     ];
     
     // Use the first model in the list
@@ -215,12 +214,19 @@ Expected yield: 20-25 tons per acre in 90-100 days"`;
       console.error('Gemini API error:', error);
       
       // Handle specific error cases
-      if (error.message?.includes('API key')) {
+      if (error.message?.includes('API key') || error.status === 400) {
         throw new Error('AI service configuration error. Please contact support.');
       }
       
-      if (error.message?.includes('404') || error.message?.includes('not found')) {
-        console.error(`Model ${this.modelName} not found. Please update model name.`);
+      if (error.message?.includes('404') || error.message?.includes('not found') || error.status === 404) {
+        // Try fallback model
+        const fallbackModel = 'gemini-1.5-flash';
+        if (this.modelName !== fallbackModel) {
+          console.warn(`Model ${this.modelName} not found, falling back to ${fallbackModel}`);
+          this.modelName = fallbackModel;
+          this.model = genAI.getGenerativeModel({ model: fallbackModel });
+          return this.generateResponse(userMessage, context, conversationHistory, intent);
+        }
         throw new Error('AI model temporarily unavailable. Please try again.');
       }
       
