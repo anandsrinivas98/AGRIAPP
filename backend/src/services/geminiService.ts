@@ -217,6 +217,10 @@ Expected yield: 20-25 tons per acre in 90-100 days"`;
       if (error.message?.includes('API key') || error.status === 400) {
         throw new Error('AI service configuration error. Please contact support.');
       }
+
+      if (error.status === 429 || error.message?.includes('429') || error.message?.includes('quota')) {
+        throw new Error('AI service is busy right now. Please try again in a minute.');
+      }
       
       if (error.message?.includes('404') || error.message?.includes('not found') || error.status === 404) {
         // Try fallback model
