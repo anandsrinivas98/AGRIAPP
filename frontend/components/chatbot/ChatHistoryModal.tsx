@@ -47,7 +47,8 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
   const loadSessions = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/chatbot/sessions', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/chatbot/sessions`, {
         credentials: 'include',
       });
       
@@ -77,13 +78,8 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
   const loadSessionHistory = useCallback(async (sessionId: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/chatbot/history/${sessionId}`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('History loaded:', data);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/chatbot/history/${sessionId}`, {
         setHistory(data.data.history || []);
         setSelectedSession(sessionId);
         setView('history');
@@ -103,7 +99,8 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
     if (!confirm('Are you sure you want to delete this conversation?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/chatbot/history/${sessionId}`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/chatbot/history/${sessionId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
