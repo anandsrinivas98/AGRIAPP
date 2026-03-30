@@ -80,6 +80,12 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
       setIsLoading(true);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const response = await fetch(`${apiUrl}/api/chatbot/history/${sessionId}`, {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('History loaded:', data);
         setHistory(data.data.history || []);
         setSelectedSession(sessionId);
         setView('history');
