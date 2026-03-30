@@ -6,6 +6,7 @@ import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
 import { NavigationController } from '../components/navigation';
 import GlobalLoader, { ManualLoader } from '../components/shared/GlobalLoader';
+import FloatingChatWidget from '../components/chatbot/FloatingChatWidget';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -51,6 +52,7 @@ export default function RootLayout({
           <ManualLoader />
           <NavigationController />
           {children}
+          <FloatingChatWidget />
           <Toaster 
             position="top-right"
             toastOptions={{

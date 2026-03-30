@@ -98,9 +98,9 @@ export default function CropRecommendationPage() {
     setRecommendations(null);
 
     try {
-      // Call the real backend API
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiBase}/api/recommend`, {
+      // Call the ML service API
+      const mlBase = process.env.NEXT_PUBLIC_ML_SERVICE_URL || 'http://localhost:7860';
+      const response = await fetch(`${mlBase}/recommend/crop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
