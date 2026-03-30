@@ -38,7 +38,7 @@ export default function ChatbotPage() {
     {
       id: '1',
       role: 'assistant',
-      content: 'Namaste! 🙏 Welcome to your advanced AI farming assistant!\n\nI\'m powered by Gemini AI and understand your questions naturally - even short messages, spelling mistakes, or mixed languages.\n\n**🌾 What I can do:**\n• **Complete crop guides** - Step-by-step cultivation from seed to harvest\n• **Smart problem solving** - Disease, pest, and soil issues\n• **Cost & yield planning** - Detailed financial analysis\n• **Image analysis** - Upload photos for instant diagnosis\n• **Document processing** - Analyze farming reports and data\n• **Context memory** - Remember our conversation for follow-ups\n\n**💡 Try asking:**\n• "How to grow tomatoes for 1 acre?"\n• "My wheat leaves are turning yellow"\n• "Best fertilizer schedule for rice"\n\nJust ask naturally - I\'ll understand! 😊',
+      content: 'Namaste! 🙏 Welcome to your AI farming assistant!\n\nI\'m powered by Gemini AI and understand your questions naturally - even short messages, spelling mistakes, or mixed languages.\n\n🌾 What I can do:\n• Complete crop guides - Step-by-step cultivation from seed to harvest\n• Smart problem solving - Disease, pest, and soil issues\n• Cost & yield planning - Detailed financial analysis\n• Image analysis - Upload photos for instant diagnosis\n• Document processing - Analyze farming reports and data\n• Context memory - Remember our conversation for follow-ups\n\n💡 Try asking:\n• "How to grow tomatoes for 1 acre?"\n• "My wheat leaves are turning yellow"\n• "Best fertilizer schedule for rice"\n\nJust ask naturally - I\'ll understand! 😊',
       timestamp: new Date()
     }
   ]);
@@ -400,7 +400,7 @@ export default function ChatbotPage() {
     setMessages([{
       id: '1',
       role: 'assistant',
-      content: 'Chat cleared! 🔄 Ready for fresh farming questions!\n\n**🚀 I\'m your advanced AI assistant:**\n• Complete crop cultivation guides with costs\n• Smart disease & pest identification\n• Fertilizer schedules and soil advice\n• Image analysis for instant diagnosis\n• Context-aware follow-up conversations\n\n**Ask me anything like:**\n• "Banana farming guide for 2 acres"\n• "Why are my tomato leaves curling?"\n• "NPK schedule for wheat crop"\n\nWhat farming challenge can I solve for you?',
+      content: 'Chat cleared! 🔄 Ready for fresh farming questions!\n\n🚀 I\'m your AI assistant:\n• Complete crop cultivation guides with costs\n• Smart disease & pest identification\n• Fertilizer schedules and soil advice\n• Image analysis for instant diagnosis\n• Context-aware follow-up conversations\n\nAsk me anything like:\n• "Banana farming guide for 2 acres"\n• "Why are my tomato leaves curling?"\n• "NPK schedule for wheat crop"\n\nWhat farming challenge can I solve for you?',
       timestamp: new Date()
     }]);
     setInput('');
@@ -423,7 +423,7 @@ export default function ChatbotPage() {
     setMessages([{
       id: '1',
       role: 'assistant',
-      content: 'Namaste! 🙏 Welcome to your advanced AI farming assistant!\n\nI\'m powered by Gemini AI and understand your questions naturally - even short messages, spelling mistakes, or mixed languages.\n\n**🌾 What I can do:**\n• **Complete crop guides** - Step-by-step cultivation from seed to harvest\n• **Smart problem solving** - Disease, pest, and soil issues\n• **Cost & yield planning** - Detailed financial analysis\n• **Image analysis** - Upload photos for instant diagnosis\n• **Document processing** - Analyze farming reports and data\n• **Context memory** - Remember our conversation for follow-ups\n\n**💡 Try asking:**\n• "How to grow tomatoes for 1 acre?"\n• "My wheat leaves are turning yellow"\n• "Best fertilizer schedule for rice"\n\nJust ask naturally - I\'ll understand! 😊',
+      content: 'Namaste! 🙏 Welcome to your AI farming assistant!\n\nI\'m powered by Gemini AI and understand your questions naturally - even short messages, spelling mistakes, or mixed languages.\n\n🌾 What I can do:\n• Complete crop guides - Step-by-step cultivation from seed to harvest\n• Smart problem solving - Disease, pest, and soil issues\n• Cost & yield planning - Detailed financial analysis\n• Image analysis - Upload photos for instant diagnosis\n• Document processing - Analyze farming reports and data\n• Context memory - Remember our conversation for follow-ups\n\n💡 Try asking:\n• "How to grow tomatoes for 1 acre?"\n• "My wheat leaves are turning yellow"\n• "Best fertilizer schedule for rice"\n\nJust ask naturally - I\'ll understand! 😊',
       timestamp: new Date()
     }]);
     
@@ -491,7 +491,7 @@ export default function ChatbotPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-2xl shadow-lg p-4 border border-gray-200 max-h-96 overflow-y-auto"
+              className="suggested-questions-scroll bg-white rounded-2xl shadow-lg p-4 border border-gray-200 max-h-96 overflow-y-auto"
             >
               <h3 className="text-sm font-bold text-gray-800 mb-3">💡 Suggested Questions</h3>
               <div className="space-y-1.5">
