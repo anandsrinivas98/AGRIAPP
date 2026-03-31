@@ -80,9 +80,13 @@ class VectorService {
         })
       );
       return embeddings;
-    } catch (error) {
+    } catch (error: any) {
+      // If quota exceeded, don't burn more requests — return empty
+      if (error?.status === 429 || error?.message?.includes('429') || error?.message?.includes('quota')) {
+        console.warn('⚠️ Embedding quota exceeded, skipping vector operations');
+        return [];
+      }
       console.error('Error generating embeddings:', error);
-      // Return zero vectors as fallback
       return texts.map(() => new Array(768).fill(0));
     }
   }
@@ -175,6 +179,12 @@ class VectorService {
     console.log('🔄 Generating embeddings...');
     const embeddings = await this.generateEmbeddings(documents);
 
+    // If embeddings failed due to quota, skip seeding
+    if (embeddings.length === 0) {
+      console.warn('⚠️ Skipping knowledge base seeding — embedding quota exceeded');
+      return;
+    }
+
     await this.collection.add({
       ids,
       documents,
@@ -262,6 +272,9 @@ class VectorService {
     try {
       // Generate embedding for query
       const queryEmbeddings = await this.generateEmbeddings([query]);
+
+      // If embeddings failed (quota), skip the query entirely
+      if (queryEmbeddings.length === 0) return [];
       
       const results = await this.collection.query({
         queryEmbeddings: queryEmbeddings,
