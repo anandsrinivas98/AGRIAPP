@@ -2,6 +2,7 @@ import { Router, Request } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import rateLimit from 'express-rate-limit';
 import { geminiService } from '../services/geminiService';
 import { vectorService } from '../services/vectorService';
 import { chatHistoryService } from '../services/chatHistoryService';
@@ -18,6 +19,15 @@ declare module 'express-serve-static-core' {
 }
 
 const router = Router();
+
+// Rate limit: max 20 messages per IP per 10 minutes
+const chatRateLimit = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  message: { success: false, message: 'Too many messages. Please wait a few minutes before trying again.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Initialize vector service
 vectorService.initialize().catch(console.error);
@@ -507,7 +517,7 @@ async function extractFileContent(filePath: string, fileType: string, fileId: st
  *       200:
  *         description: AI response generated successfully
  */
-router.post('/', upload.fields([
+router.post('/', chatRateLimit, upload.fields([
   { name: 'image', maxCount: 1 },
   { name: 'file', maxCount: 1 }
 ]), async (req, res): Promise<void> => {

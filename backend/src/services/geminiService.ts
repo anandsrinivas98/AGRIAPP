@@ -17,9 +17,8 @@ class GeminiService {
   constructor() {
     // Use latest available models (verified working with your API key)
     const modelOptions = [
-      'gemini-2.0-flash',      // Stable and reliable
-      'gemini-1.5-flash',      // Fallback: widely available
-      'gemini-1.5-pro',        // Pro fallback
+      'gemini-1.5-flash',      // Higher free tier token limits
+      'gemini-2.0-flash',      // Fallback
     ];
     
     // Use the first model in the list
