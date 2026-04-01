@@ -8,11 +8,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 
-// Free models on OpenRouter — fallback order
+// Free models on OpenRouter — fallback order (verified working April 2026)
 const OPENROUTER_MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'mistralai/mistral-7b-instruct:free',
-  'google/gemma-3-12b-it:free',
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'microsoft/phi-3-mini-128k-instruct:free',
+  'qwen/qwen3-8b:free',
+  'deepseek/deepseek-r1-0528:free',
 ];
 
 interface ChatMessage {
@@ -25,7 +26,7 @@ class GeminiService {
 
   constructor() {
     this.geminiModel = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
     });
     console.log('✅ AI service initialized — Gemini → OpenRouter fallback chain ready');
@@ -153,7 +154,7 @@ Provide:
 5. Prevention tips (bullet points •)
 Be specific and practical.`;
 
-      const visionModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await visionModel.generateContent([
         analysisPrompt,
         { inlineData: { data: base64Image, mimeType } },
