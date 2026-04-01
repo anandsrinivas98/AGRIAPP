@@ -2,10 +2,12 @@ import { Router, Request } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { geminiService } from '../services/geminiService';
 import { vectorService } from '../services/vectorService';
 import { chatHistoryService } from '../services/chatHistoryService';
+import { cacheService } from '../services/cacheService';
 
 // Extend Express Request type to include user (matches AuthRequest)
 declare module 'express-serve-static-core' {
@@ -338,58 +340,48 @@ async function generateAIResponse(
   fileContent?: string
 ): Promise<string> {
   try {
-    // Analyze user intent
     const intent = analyzeUserIntent(message);
-    
-    // Check if Gemini is configured
+
     if (!geminiService.isConfigured()) {
-      console.warn('⚠️ Gemini API key not configured, using fallback responses');
+      console.warn('⚠️ No AI key configured, using fallback responses');
       return generateFallbackResponse(message, intent);
     }
 
-    // Build context - RAG ONLY for uploaded content
-    let contextForGemini = '';
-    let hasUploadedContent = false;
-    
-    if (imageAnalysis) {
-      contextForGemini += `\n\n🖼️ IMAGE ANALYSIS RESULTS:\n${imageAnalysis}`;
-      hasUploadedContent = true;
-    }
-    
-    if (fileContent) {
-      contextForGemini += `\n\n📄 DOCUMENT CONTENT:\n${fileContent}`;
-      hasUploadedContent = true;
-    }
-    
-    // Add RAG context only for uploaded content
-    if (hasUploadedContent && ragContext) {
-      contextForGemini += `\n\n📚 RELEVANT AGRICULTURAL KNOWLEDGE:\n${ragContext}`;
+    const hasUploadedContent = !!(imageAnalysis || fileContent);
+
+    // Cache only plain text queries (no uploads, no conversation context)
+    const cacheKey = !hasUploadedContent && conversationHistory.length === 0
+      ? `chat:${crypto.createHash('md5').update(message.toLowerCase().trim()).digest('hex')}`
+      : null;
+
+    if (cacheKey) {
+      const cached = await cacheService.get<string>(cacheKey);
+      if (cached) {
+        console.log('✅ Cache hit for query:', message.substring(0, 50));
+        return cached;
+      }
     }
 
-    // For normal text queries, use NO external context - pure Gemini intelligence
-    if (!hasUploadedContent) {
-      contextForGemini = '';
-    }
+    let contextForAI = '';
+    if (imageAnalysis) contextForAI += `\n\n🖼️ IMAGE ANALYSIS:\n${imageAnalysis}`;
+    if (fileContent) contextForAI += `\n\n📄 DOCUMENT:\n${fileContent}`;
+    if (hasUploadedContent && ragContext) contextForAI += `\n\n📚 KNOWLEDGE:\n${ragContext}`;
 
-    // Convert conversation history for context (last 6 messages)
-    const chatHistory = conversationHistory.slice(-6).map((msg: any) => ({
+    const chatHistory = conversationHistory.slice(-4).map((msg: any) => ({
       role: (msg.role === 'user' ? 'user' : 'model') as 'user' | 'model',
       parts: String(msg.content)
     }));
 
-    // Generate response using Gemini
-    const response = await geminiService.generateResponse(
-      message,
-      contextForGemini,
-      chatHistory,
-      intent
-    );
+    const response = await geminiService.generateResponse(message, contextForAI, chatHistory, intent);
+
+    // Cache the response for 1 hour (plain text queries only)
+    if (cacheKey && response) {
+      await cacheService.set(cacheKey, response, 3600);
+    }
 
     return response;
   } catch (error: any) {
     console.error('AI generation error:', error);
-    
-    // Fallback to intelligent response
     const intent = analyzeUserIntent(message);
     return generateFallbackResponse(message, intent);
   }

@@ -27,8 +27,12 @@ class CacheService {
       this.client = createClient({
         url: config.redis.url,
         socket: {
-          connectTimeout: 5000, // 5 second timeout
-          reconnectStrategy: false, // Disable automatic reconnection
+          connectTimeout: 5000,
+          reconnectStrategy: (retries) => {
+            if (retries > 3) return false; // stop after 3 retries
+            return Math.min(retries * 500, 2000);
+          },
+          tls: config.redis.url?.startsWith('rediss://'), // enable TLS for Upstash
         },
       });
 
