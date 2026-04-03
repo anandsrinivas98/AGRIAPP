@@ -10,11 +10,11 @@ const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 
 // Free models on OpenRouter — verified working April 2026
 const OPENROUTER_MODELS = [
-  'meta-llama/llama-3.3-70b-instruct:free',  // Best quality
-  'openai/gpt-oss-20b:free',                  // OpenAI open-weight
-  'nvidia/nemotron-3-nano-30b-a3b:free',      // NVIDIA free
+  'nvidia/nemotron-3-nano-30b-a3b:free',      // NVIDIA free (primary fallback)
   'google/gemma-3-27b-it:free',               // Google Gemma 27B
+  'mistralai/mistral-7b-instruct:free',        // Mistral 7B
   'z-ai/glm-4.5-air:free',                    // GLM fallback
+  'deepseek/deepseek-r1-0528-qwen3-8b:free',  // DeepSeek free
 ];
 
 interface ChatMessage {
