@@ -732,9 +732,9 @@ export default function ChatbotPage() {
                 )}
 
                 {/* Input Box */}
-                <div className="flex items-end space-x-3">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-100 transition-all">
                   {/* Attachment Buttons */}
-                  <div className="flex flex-col space-y-2">
+                  <div className="flex items-center gap-1 pl-1">
                     <input
                       ref={imageInputRef}
                       type="file"
@@ -745,8 +745,8 @@ export default function ChatbotPage() {
                     <button
                       onClick={() => imageInputRef.current?.click()}
                       disabled={isLoading}
-                      className="p-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Upload Image (for disease detection)"
+                      className="p-2 hover:bg-blue-100 text-blue-500 rounded-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Upload Image"
                       aria-label="Upload image"
                     >
                       <PhotoIcon className="w-5 h-5" />
@@ -762,7 +762,7 @@ export default function ChatbotPage() {
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading}
-                      className="p-3 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2 hover:bg-purple-100 text-purple-500 rounded-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Upload Document"
                       aria-label="Upload document"
                     >
@@ -785,7 +785,7 @@ export default function ChatbotPage() {
                       placeholder="Ask me anything about farming..."
                       rows={1}
                       maxLength={2000}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-100 outline-none resize-none transition-all max-h-32 overflow-y-auto"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none resize-none transition-all max-h-32 overflow-y-auto bg-gray-50 focus:bg-white"
                       style={{ minHeight: '48px' }}
                     />
                     {/* Character count */}
@@ -800,10 +800,10 @@ export default function ChatbotPage() {
                   <button
                     onClick={isRecording ? stopRecording : startRecording}
                     disabled={isLoading}
-                    className={`p-3 rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`p-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
                       isRecording
-                        ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg shadow-red-200'
-                        : 'bg-orange-50 hover:bg-orange-100 text-orange-600'
+                        ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-md shadow-red-200'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-500'
                     }`}
                     title={isRecording ? 'Stop Recording' : 'Voice Input'}
                     aria-label={isRecording ? 'Stop recording' : 'Start voice recording'}
@@ -815,7 +815,7 @@ export default function ChatbotPage() {
                   <button
                     onClick={sendMessage}
                     disabled={isLoading || (!input.trim() && !selectedImage && !selectedFile)}
-                    className="p-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shadow-lg"
+                    className="p-2.5 bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95 shadow-md"
                     title="Send message (Enter)"
                     aria-label="Send message"
                   >

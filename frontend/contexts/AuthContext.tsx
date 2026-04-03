@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo, ReactNode } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
@@ -299,14 +299,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({
     ...state,
     login,
     register,
     logout,
     updateProfile,
     clearError,
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [state]);
 
   return (
     <AuthContext.Provider value={value}>

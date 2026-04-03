@@ -8,12 +8,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 
-// Free models on OpenRouter — fallback order (verified working April 2026)
+// Free models on OpenRouter — verified working April 2026
 const OPENROUTER_MODELS = [
-  'meta-llama/llama-3.1-8b-instruct:free',
-  'microsoft/phi-3-mini-128k-instruct:free',
-  'qwen/qwen3-8b:free',
-  'deepseek/deepseek-r1-0528:free',
+  'meta-llama/llama-3.3-70b-instruct:free',  // Best quality
+  'openai/gpt-oss-20b:free',                  // OpenAI open-weight
+  'nvidia/nemotron-3-nano-30b-a3b:free',      // NVIDIA free
+  'google/gemma-3-27b-it:free',               // Google Gemma 27B
+  'z-ai/glm-4.5-air:free',                    // GLM fallback
 ];
 
 interface ChatMessage {

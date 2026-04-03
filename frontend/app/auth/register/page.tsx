@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -35,28 +35,27 @@ export default function RegisterPage() {
   // Clear any existing errors when component mounts
   useEffect(() => {
     clearError();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const passwordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z\d]/.test(password)) strength++;
-    return strength;
-  };
+  const strength = useMemo(() => {
+    const p = formData.password;
+    let s = 0;
+    if (p.length >= 8) s++;
+    if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+    if (/\d/.test(p)) s++;
+    if (/[^a-zA-Z\d]/.test(p)) s++;
+    return s;
+  }, [formData.password]);
 
-  const strength = passwordStrength(formData.password);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError('');
-    
+
     if (formData.password !== formData.confirmPassword) {
       setValidationError('Passwords do not match');
       return;
     }
-
     if (formData.password.length < 6) {
       setValidationError('Password must be at least 6 characters long');
       return;
@@ -70,20 +69,16 @@ export default function RegisterPage() {
         password: formData.password,
         phone: formData.phone
       });
-      // Redirect to email verification page
       router.push(`/auth/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (error) {
-      // Error is handled by AuthContext and shown via toast
       console.error('Registration error:', error);
     }
-  };
+  }, [formData, register, router]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
 
   return (
     <div className="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">

@@ -42,12 +42,14 @@ class EmailService {
         </div>
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2>Hello ${firstName}!</h2>
-          <p>Thank you for registering. Use the OTP below to verify your email:</p>
+          <p>Thank you for registering with AgriSense. To complete your registration, please verify your email address using the OTP below:</p>
           <div style="background: white; border: 2px dashed #10b981; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
-            <p style="margin: 0; color: #6b7280;">Your verification code:</p>
+            <p style="margin: 0; color: #6b7280;">Your verification code is:</p>
             <div style="font-size: 32px; font-weight: bold; color: #10b981; letter-spacing: 8px;">${otp}</div>
           </div>
-          <p><strong>Expires in 10 minutes.</strong></p>
+          <p><strong>This code will expire in 10 minutes.</strong></p>
+          <p style="color: #6b7280; font-size: 14px;">If you didn't create an account with AgriSense, please ignore this email.</p>
+          <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 20px;">© 2025 AgriSense. All rights reserved.</p>
         </div>
       </div>`;
     return sendEmail(email, firstName, 'Verify Your AgriSense Account', html);

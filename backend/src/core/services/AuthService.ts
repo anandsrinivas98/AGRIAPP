@@ -34,25 +34,26 @@ export class AuthService {
   async register(data: RegisterData): Promise<{ message: string }> {
     const { email, password, firstName, lastName, phone, role = 'FARMER' } = data;
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // Run both DB checks in parallel
+    const [existingUser, existingPending] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.pendingUser.findUnique({ where: { email } }),
+    ]);
+
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
 
-    // Check if there's a pending registration
-    const existingPending = await prisma.pendingUser.findUnique({ where: { email } });
     if (existingPending) {
-      // Delete existing pending registration
       await prisma.pendingUser.delete({ where: { email } });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Hash password (cost 10 is sufficient and ~4x faster than 12)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Generate OTP
     const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     // Create pending user
     await prisma.pendingUser.create({
@@ -68,8 +69,10 @@ export class AuthService {
       },
     });
 
-    // Send verification email
-    await emailService.sendVerificationOTP(email, otp, firstName);
+    // Fire email without blocking the response
+    emailService.sendVerificationOTP(email, otp, firstName).catch((err) =>
+      console.error('Failed to send verification email:', err)
+    );
 
     return { message: 'Registration successful. Please check your email for verification code.' };
   }

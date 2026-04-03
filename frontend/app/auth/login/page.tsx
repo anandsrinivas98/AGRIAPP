@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -26,32 +26,28 @@ export default function LoginPage() {
   // Clear any existing errors when component mounts
   useEffect(() => {
     clearError();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       await login(formData.email, formData.password);
-      // Redirect to dashboard after successful login
       router.push('/dashboard');
     } catch (error: any) {
-      // Check if email verification is required
       if (error?.requiresVerification) {
         router.push(`/auth/verify-email?email=${encodeURIComponent(error.email || formData.email)}`);
         return;
       }
-      // Error is handled by AuthContext and shown via toast
       console.error('Login error:', error);
     }
-  };
+  }, [formData, login, router]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
 
   return (
     <div className="min-h-screen relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
