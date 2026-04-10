@@ -40,7 +40,7 @@ export default function WeatherPage() {
   const fetchWeatherData = async (lat: number, lng: number) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/weather?lat=${lat}&lng=${lng}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/weather?lat=${lat}&lng=${lng}`);
       const result = await response.json();
       
       if (result.success) {
