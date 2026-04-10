@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import fs from 'fs';
+import path from 'path';
+import pdfParse from 'pdf-parse';
+import mammoth from 'mammoth';
 
 // Initialize Gemini (primary)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -34,11 +37,40 @@ class GeminiService {
   }
 
   private buildSystemPrompt(context: string): string {
+    const base = `You are AgriSense AI, a friendly and expert farming assistant. Your goal is to give clear, structured, and actionable advice to farmers.
+
+RESPONSE FORMAT RULES (always follow these):
+- Start with a 1-2 sentence direct answer to the question
+- Use **bold** for headings, key terms, and important values
+- Use bullet points (- item) for lists of tips, symptoms, or options
+- Use numbered steps (1. 2. 3.) for processes and instructions
+- Add a blank line between sections for readability
+- End with a short "💡 Tip:" or "⚠️ Note:" if relevant
+- Keep sentences short and simple — write for farmers, not scientists
+- Avoid jargon; if you must use a technical term, explain it briefly
+- Maximum 3-4 bullet points per section to avoid overwhelming the user
+- Never write long unbroken paragraphs
+
+RESPONSE STRUCTURE (adapt as needed):
+**[Direct Answer]**
+One or two sentences answering the question directly.
+
+**[Main Section e.g. Steps / Causes / Recommendations]**
+- Point one
+- Point two
+- Point three
+
+**[Secondary Section if needed]**
+- Point one
+- Point two
+
+💡 Tip: [One helpful closing tip]`;
+
     const hasContext = context && context.trim().length > 50;
     if (hasContext) {
-      return `You are an expert AI Farming Assistant for AgriSense. Use the context below to give specific, actionable advice. Plain text only — no asterisks or markdown. Use bullet points (•) and numbered steps.\n\nCONTEXT:\n${context}`;
+      return `${base}\n\nUse the following knowledge base context to give specific advice:\n\nCONTEXT:\n${context}`;
     }
-    return `You are an expert AI Farming Assistant for AgriSense. Answer farming questions clearly and practically — crops, diseases, pests, soil, irrigation, economics. Plain text only, no markdown or asterisks. Use bullet points (•) and numbered steps (1. 2. 3.). Be specific and farmer-friendly.`;
+    return base;
   }
 
   /**
@@ -138,6 +170,7 @@ class GeminiService {
 
   /**
    * Analyze image — Gemini Vision only (others don't support it on free tier)
+   * Returns detailed structured analysis to be passed as context to text models
    */
   async analyzeImage(imagePath: string, prompt: string = ''): Promise<string> {
     try {
@@ -146,40 +179,81 @@ class GeminiService {
       const ext = imagePath.split('.').pop()?.toLowerCase();
       const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
 
-      const analysisPrompt = prompt || `You are an AI Farming Assistant analyzing this agricultural image. Plain text only, no markdown.
-Provide:
-1. Crop/plant identified and condition
-2. Diseases, pests, or health issues (bullet points •)
-3. Nutrient deficiencies or stress signs (bullet points •)
-4. Immediate actions (numbered steps 1. 2. 3.)
-5. Prevention tips (bullet points •)
-Be specific and practical.`;
+      const analysisPrompt = prompt || `You are an expert agricultural AI analyzing a farm/plant image.
+Provide a detailed structured analysis with these sections:
+
+**Plant/Crop Identified**
+- Name and variety if visible
+- Growth stage
+
+**Current Condition**
+- Overall health status (Healthy / Stressed / Diseased / Pest-affected)
+- Visual symptoms observed
+
+**Issues Detected**
+- List any diseases, pests, nutrient deficiencies, or stress signs with specific symptoms
+
+**Recommended Actions**
+1. Immediate steps to take
+2. Treatment options (organic and chemical)
+3. Preventive measures
+
+**Additional Notes**
+- Any other observations relevant to the farmer
+
+Be specific, practical, and farmer-friendly.`;
 
       const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await visionModel.generateContent([
         analysisPrompt,
         { inlineData: { data: base64Image, mimeType } },
       ]);
-      return result.response.text();
+      const analysis = result.response.text();
+      console.log('✅ Image analyzed by Gemini Vision');
+      return analysis;
     } catch (error: any) {
       console.error('Image analysis error:', error);
-      return 'Image received. Please describe what you see or any specific concerns about the plant for better assistance.';
+      // Return empty string so caller knows analysis failed
+      return '';
     }
   }
 
   /**
-   * Extract text from document/file
+   * Extract raw text from uploaded document (PDF, DOCX, TXT, CSV)
+   * Returns the actual document text — no summarization, preserves all content
    */
   async extractTextFromFile(filePath: string, fileType: string): Promise<string> {
     try {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      return await this.generateResponse(
-        `Extract and summarize the key agricultural information from this document:\n\n${content.substring(0, 3000)}`,
-        ''
-      );
+      const ext = path.extname(filePath).toLowerCase();
+      let rawText = '';
+
+      if (ext === '.pdf') {
+        // Proper PDF parsing
+        const dataBuffer = fs.readFileSync(filePath);
+        const pdfData = await pdfParse(dataBuffer);
+        rawText = pdfData.text;
+      } else if (ext === '.docx' || ext === '.doc') {
+        // Proper DOCX parsing
+        const result = await mammoth.extractRawText({ path: filePath });
+        rawText = result.value;
+      } else {
+        // Plain text, CSV, TXT
+        rawText = fs.readFileSync(filePath, 'utf-8');
+      }
+
+      // Clean up whitespace
+      rawText = rawText.replace(/\s+/g, ' ').trim();
+
+      if (!rawText || rawText.length < 10) {
+        return 'Could not extract text from this document. Please try a different file format.';
+      }
+
+      console.log(`✅ Extracted ${rawText.length} characters from ${ext} file`);
+      // Return up to 8000 chars — enough for full context without hitting token limits
+      return rawText.substring(0, 8000);
     } catch (error) {
       console.error('File extraction error:', error);
-      return 'File content extracted. Please describe what information you need from this document.';
+      return 'Failed to read document. Please ensure the file is not corrupted.';
     }
   }
 

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import {
   XMarkIcon,
   PaperAirplaneIcon,
@@ -52,19 +53,39 @@ export default function FloatingChatWidget() {
   const [sessionId] = useState(() => `widget_${Date.now()}`);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Track whether user is near bottom — use ref to avoid re-renders
+  const isNearBottomRef = useRef(true);
+  const scrollRafRef = useRef<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  // Conditional auto-scroll: only scroll if user is already near the bottom
+  // Called explicitly — NOT triggered on every message state update
+  const scrollToBottomIfNear = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    if (isNearBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
     }
-  }, [messages]);
+  };
+
+  // Detect user scroll position to decide whether to auto-scroll
+  const handleScroll = () => {
+    if (scrollRafRef.current) return; // throttle via rAF
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      const el = scrollContainerRef.current;
+      if (!el) return;
+      const threshold = 80; // px from bottom
+      isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
+    });
+  };
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -83,28 +104,53 @@ export default function FloatingChatWidget() {
     reader.readAsDataURL(file);
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      const chunks: Blob[] = [];
-      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-      mediaRecorder.onstop = () => {
-        setInput('How can I improve my crop yield?');
-        toast.success('Voice converted to text!');
-      };
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch {
-      toast.error('Microphone access denied');
+  const startRecording = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast.error('Speech recognition not supported. Try Chrome or Edge.');
+      return;
     }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    mediaRecorderRef.current = recognition as any;
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast.success('🎙️ Listening... Speak now');
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+      toast.success('✅ Voice converted to text!');
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsRecording(false);
+      if (event.error === 'not-allowed') {
+        toast.error('Microphone access denied.');
+      } else if (event.error === 'no-speech') {
+        toast.error('No speech detected. Try again.');
+      } else {
+        toast.error(`Voice error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => setIsRecording(false);
+    recognition.start();
   };
 
   const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-    mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop());
-    setIsRecording(false);
+    const recognition = mediaRecorderRef.current as any;
+    if (recognition && isRecording) {
+      recognition.stop();
+      setIsRecording(false);
+    }
   };
 
   const sendMessage = async (text?: string) => {
@@ -124,6 +170,9 @@ export default function FloatingChatWidget() {
     setSelectedImage(null);
     setImagePreview(null);
     setIsLoading(true);
+    // User sent a message — snap to bottom and re-enable auto-scroll
+    isNearBottomRef.current = true;
+    setTimeout(() => scrollToBottomIfNear(), 0);
 
     try {
       const formData = new FormData();
@@ -144,6 +193,8 @@ export default function FloatingChatWidget() {
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, assistantMsg]);
+        // Scroll to bottom when assistant message first appears
+        setTimeout(() => scrollToBottomIfNear(), 0);
 
         const fullText: string = data.data.response;
         let current = '';
@@ -151,9 +202,13 @@ export default function FloatingChatWidget() {
           current += fullText[i];
           const snap = current;
           setMessages(prev => prev.map(m => m.id === assistantMsg.id ? { ...m, content: snap } : m));
+          // Only scroll every ~20 chars to avoid fighting user scroll
+          if (i % 20 === 0) scrollToBottomIfNear();
           const delay = ['.', '!', '?'].includes(fullText[i]) ? 80 : 12;
           await new Promise(r => setTimeout(r, delay));
         }
+        // Final scroll after streaming completes
+        scrollToBottomIfNear();
       } else {
         throw new Error(data.message);
       }
@@ -248,7 +303,7 @@ export default function FloatingChatWidget() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 bg-gray-50">
+            <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3 bg-gray-50">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (
@@ -273,7 +328,13 @@ export default function FloatingChatWidget() {
                     {msg.image && (
                       <img src={msg.image} alt="uploaded" className="rounded-lg mb-2 max-h-32 object-cover w-full" />
                     )}
-                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-sm max-w-none prose-p:my-1 prose-p:leading-relaxed prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-strong:text-gray-900 prose-headings:text-gray-900 prose-headings:font-semibold prose-headings:text-sm prose-headings:mt-2 prose-headings:mb-1">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    )}
                   </div>
                 </div>
               ))}

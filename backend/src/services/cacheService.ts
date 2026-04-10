@@ -131,6 +131,11 @@ class CacheService {
     }
   }
 
+  // Alias for del — used by documentService
+  async delete(key: string): Promise<void> {
+    return this.del(key);
+  }
+
   /**
    * Invalidate all keys matching a pattern
    */

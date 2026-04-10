@@ -42,6 +42,7 @@
     "react-i18next": "^13.5.0",
     "react-leaflet": "^4.2.1",
     "react-map-gl": "^7.1.7",
+    "react-markdown": "^10.1.0",
     "react-speech-kit": "^3.0.1",
     "react-window": "^2.2.3",
     "react-window-infinite-loader": "^2.0.0",

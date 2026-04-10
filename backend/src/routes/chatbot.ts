@@ -8,6 +8,7 @@ import { geminiService } from '../services/geminiService';
 import { vectorService } from '../services/vectorService';
 import { chatHistoryService } from '../services/chatHistoryService';
 import { cacheService } from '../services/cacheService';
+import { documentService } from '../services/documentService';
 
 // Extend Express Request type to include user (matches AuthRequest)
 declare module 'express-serve-static-core' {
@@ -363,17 +364,24 @@ async function generateAIResponse(
     }
 
     let contextForAI = '';
-    if (imageAnalysis) contextForAI += `\n\n🖼️ IMAGE ANALYSIS:\n${imageAnalysis}`;
-    if (fileContent) contextForAI += `\n\n📄 DOCUMENT:\n${fileContent}`;
-    if (hasUploadedContent && ragContext) contextForAI += `\n\n📚 KNOWLEDGE:\n${ragContext}`;
+    if (imageAnalysis) contextForAI += `\n\n🖼️ IMAGE ANALYSIS (from Gemini Vision):\n${imageAnalysis}`;
+    if (fileContent) contextForAI += `\n\n📄 DOCUMENT CONTENT:\n${fileContent}`;
+    if (ragContext) contextForAI += `\n\n📚 KNOWLEDGE BASE:\n${ragContext}`;
+
+    // For fallback models: make the user message explicitly include image context
+    // so text-only models can still give relevant answers
+    const enrichedMessage = imageAnalysis
+      ? `The user uploaded a plant/crop image. Here is what was found in the image:\n\n${imageAnalysis}\n\nUser's question: ${message || 'Please analyze this image and provide farming advice.'}`
+      : fileContent
+      ? `The user uploaded a document. Here is the document content:\n\n${fileContent}\n\nUser's question: ${message || 'Please analyze this document and answer any questions about it.'}`
+      : message;
 
     const chatHistory = conversationHistory.slice(-4).map((msg: any) => ({
       role: (msg.role === 'user' ? 'user' : 'model') as 'user' | 'model',
       parts: String(msg.content)
     }));
 
-    const response = await geminiService.generateResponse(message, contextForAI, chatHistory, intent);
-
+    const response = await geminiService.generateResponse(enrichedMessage, contextForAI, chatHistory, intent);
     // Cache the response for 1 hour (plain text queries only)
     if (cacheKey && response) {
       await cacheService.set(cacheKey, response, 3600);
@@ -433,54 +441,37 @@ function generateFallbackResponse(
  */
 async function analyzeImage(imagePath: string, imageId: string): Promise<string> {
   try {
-    if (!geminiService.isConfigured()) {
-      return 'Image received. Please describe what you see or any concerns about the plant for better assistance.';
-    }
-
-    // Analyze image with Gemini Vision
+    if (!geminiService.isConfigured()) return '';
     const analysis = await geminiService.analyzeImage(imagePath);
-    
-    // Store image vector in database
-    await vectorService.storeImageVector(
-      imageId,
-      analysis,
-      imagePath
-    );
-
+    if (analysis) await vectorService.storeImageVector(imageId, analysis, imagePath);
     return analysis;
   } catch (error) {
     console.error('Image analysis error:', error);
-    return 'Image received. Based on visual inspection, this appears to be a plant/crop image. Please describe any specific concerns.';
+    return '';
   }
 }
 
 /**
- * Extract text from file using Gemini
+ * Smart cache key — includes session doc hash so doc-based queries
+ * are never served stale answers from a different session's cache
  */
-async function extractFileContent(filePath: string, fileType: string, fileId: string, filename: string): Promise<string> {
-  try {
-    if (!geminiService.isConfigured()) {
-      // Basic file reading fallback
-      const content = fs.readFileSync(filePath, 'utf-8').substring(0, 1000);
-      return `File content preview: ${content}`;
-    }
-
-    // Extract and analyze file content with Gemini
-    const extractedContent = await geminiService.extractTextFromFile(filePath, fileType);
-    
-    // Store file vector in database
-    await vectorService.storeFileVector(
-      fileId,
-      extractedContent,
-      filename
-    );
-
-    return extractedContent;
-  } catch (error) {
-    console.error('File extraction error:', error);
-    return 'File received. Please describe what information you need from this document.';
-  }
+function buildCacheKey(message: string, sessionId: string, hasDocuments: boolean): string | null {
+  // Never cache if session has documents (answers depend on doc content)
+  if (hasDocuments) return null;
+  const normalized = message.toLowerCase().trim();
+  // Don't cache very short or greeting messages — low value
+  if (normalized.length < 10) return null;
+  const hash = crypto.createHash('md5').update(normalized).digest('hex');
+  return `chat:${hash}`;
 }
+
+/**
+ * Main POST handler — hybrid routing:
+ * 1. Image upload  → Gemini Vision analysis → LLM with image context
+ * 2. File upload   → documentService chunks → stored in session
+ * 3. Query + docs  → smart routing: doc-related? RAG : LLM
+ * 4. Plain query   → Redis cache check → LLM
+ */
 
 /**
  * @swagger
@@ -522,70 +513,112 @@ router.post('/', chatRateLimit, upload.fields([
       return;
     }
 
-    // Generate session ID if not provided
     const chatSessionId = sessionId || `session_${userId || 'guest'}_${Date.now()}`;
     const chatUserId = userId || req.user?.userId || 'guest';
 
-    // Get compressed conversation history from database
-    let history = [];
+    // ── 1. Load conversation history ────────────────────────────────────────
+    let history: any[] = [];
     try {
-      if (sessionId) {
-        // Load from database (compressed format)
-        history = await chatHistoryService.getContextHistory(sessionId, chatUserId);
-      } else if (conversationHistory) {
-        // Fallback to client-provided history
-        history = JSON.parse(conversationHistory);
-      }
-    } catch (e) {
-      history = [];
-    }
+      history = sessionId
+        ? await chatHistoryService.getContextHistory(sessionId, chatUserId)
+        : conversationHistory ? JSON.parse(conversationHistory) : [];
+    } catch { history = []; }
 
-    // Save user message to history (will be compressed automatically)
-    await chatHistoryService.saveMessage(chatSessionId, chatUserId, message, 'user');
-
-    // RAG is ONLY used for image/file uploads
-    let ragContext = '';
-    
-    // Only fetch RAG context if image or file is uploaded
-    if (files?.image || files?.file) {
-      const vectorContext = await vectorService.getRelevantContext(message);
-      const traditionalContext = retrieveRelevantKnowledge(message);
-      ragContext = vectorContext || traditionalContext;
-    }
-
-    // Analyze image if provided
+    // ── 2. Process image upload (Gemini Vision) ──────────────────────────────
     let imageAnalysis = '';
-    if (files?.image && files.image[0]) {
-      const imageId = `img_${Date.now()}`;
-      imageAnalysis = await analyzeImage(files.image[0].path, imageId);
-      // Clean up uploaded file
-      fs.unlinkSync(files.image[0].path);
+    if (files?.image?.[0]) {
+      const imgPath = files.image[0].path;
+      imageAnalysis = await analyzeImage(imgPath, `img_${Date.now()}`);
+      try { fs.unlinkSync(imgPath); } catch {}
     }
 
-    // Extract file content if provided
-    let fileContent = '';
-    if (files?.file && files.file[0]) {
-      const fileId = `file_${Date.now()}`;
-      fileContent = await extractFileContent(
-        files.file[0].path, 
-        files.file[0].mimetype,
-        fileId,
-        files.file[0].originalname
-      );
-      // Clean up uploaded file
-      fs.unlinkSync(files.file[0].path);
+    // ── 3. Process document upload → chunk → store in session ───────────────
+    let docProcessed = false;
+    let docFilename = '';
+    if (files?.file?.[0]) {
+      const f = files.file[0];
+      try {
+        const result = await documentService.processDocument(f.path, f.originalname, chatSessionId);
+        docProcessed = true;
+        docFilename = f.originalname;
+        console.log(`📄 Doc processed: ${result.chunks} chunks, duplicate=${result.duplicate}`);
+      } catch (err) {
+        console.error('Doc processing error:', err);
+      } finally {
+        try { fs.unlinkSync(f.path); } catch {}
+      }
     }
 
-    // Generate AI response
-    const aiResponse = await generateAIResponse(
-      message,
-      history,
-      ragContext,
-      imageAnalysis,
-      fileContent
-    );
+    // ── 4. Smart routing decision ────────────────────────────────────────────
+    const sessionHasDocs = await documentService.hasDocuments(chatSessionId);
+    const isDocQuery = sessionHasDocs
+      ? await documentService.isQueryDocumentRelated(message, chatSessionId)
+      : false;
 
-    // Save AI response to history (will be compressed automatically)
+    // ── 5. Redis cache check (only for plain LLM queries) ───────────────────
+    const cacheKey = buildCacheKey(message, chatSessionId, sessionHasDocs);
+    if (cacheKey && !imageAnalysis) {
+      const cached = await cacheService.get<string>(cacheKey);
+      if (cached) {
+        console.log('⚡ Cache hit:', message.substring(0, 40));
+        await chatHistoryService.saveMessage(chatSessionId, chatUserId, message, 'user');
+        await chatHistoryService.saveMessage(chatSessionId, chatUserId, cached, 'assistant');
+        res.json({ success: true, data: { response: cached, sessionId: chatSessionId, cached: true, timestamp: new Date().toLocaleString() } });
+        return;
+      }
+    }
+
+    // ── 6. Build context for LLM ─────────────────────────────────────────────
+    let contextForAI = '';
+    let enrichedMessage = message;
+
+    if (imageAnalysis) {
+      // Image path: embed vision analysis directly in message for all models
+      contextForAI = `🖼️ IMAGE ANALYSIS:\n${imageAnalysis}`;
+      enrichedMessage = `The user uploaded a plant/crop image. Gemini Vision analysis:\n\n${imageAnalysis}\n\nUser question: ${message || 'Please analyze this image.'}`;
+
+    } else if (docProcessed && !isDocQuery) {
+      // Doc just uploaded — confirm receipt and summarize
+      const meta = await documentService.getSessionDocMeta(chatSessionId);
+      enrichedMessage = `The user just uploaded a document: "${docFilename}". Acknowledge the upload and let them know they can ask questions about it. Documents in session: ${meta.filenames.join(', ')}.`;
+
+    } else if (isDocQuery) {
+      // Doc-related query — retrieve relevant chunks
+      const chunks = await documentService.retrieveRelevantChunks(message, chatSessionId);
+      if (chunks) {
+        contextForAI = `📄 DOCUMENT CONTEXT (from uploaded files):\n\n${chunks}`;
+        enrichedMessage = `Answer the following question based on the uploaded document content.\n\nDocument excerpts:\n${chunks}\n\nQuestion: ${message}`;
+        console.log('📚 RAG mode: doc-related query');
+      }
+
+    } else {
+      // Plain LLM — optionally enrich with agricultural knowledge base
+      const kbContext = retrieveRelevantKnowledge(message);
+      if (kbContext) contextForAI = kbContext;
+      console.log('🤖 LLM mode: general query');
+    }
+
+    // ── 7. Generate response ─────────────────────────────────────────────────
+    const chatHistory = history.slice(-4).map((msg: any) => ({
+      role: (msg.role === 'user' ? 'user' : 'model') as 'user' | 'model',
+      parts: String(msg.parts || msg.content || ''),
+    }));
+
+    let aiResponse: string;
+    try {
+      aiResponse = await geminiService.generateResponse(enrichedMessage, contextForAI, chatHistory);
+    } catch (err: any) {
+      console.error('AI generation error:', err);
+      aiResponse = generateFallbackResponse(message, analyzeUserIntent(message));
+    }
+
+    // ── 8. Cache plain LLM responses ─────────────────────────────────────────
+    if (cacheKey && aiResponse && !imageAnalysis && !isDocQuery) {
+      await cacheService.set(cacheKey, aiResponse, 3600);
+    }
+
+    // ── 9. Save to history ───────────────────────────────────────────────────
+    await chatHistoryService.saveMessage(chatSessionId, chatUserId, message, 'user');
     await chatHistoryService.saveMessage(chatSessionId, chatUserId, aiResponse, 'assistant');
 
     res.json({
@@ -593,22 +626,14 @@ router.post('/', chatRateLimit, upload.fields([
       data: {
         response: aiResponse,
         sessionId: chatSessionId,
-        timestamp: new Date().toLocaleString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-          month: 'short',
-          day: 'numeric'
-        })
-      }
+        mode: imageAnalysis ? 'vision' : isDocQuery ? 'rag' : 'llm',
+        timestamp: new Date().toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, month: 'short', day: 'numeric' }),
+      },
     });
+
   } catch (error: any) {
     console.error('Chatbot error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate response',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to generate response', error: error.message });
   }
 });
 
@@ -676,19 +701,15 @@ router.delete('/history/:sessionId', async (req, res): Promise<void> => {
   try {
     const { sessionId } = req.params;
 
-    await chatHistoryService.clearHistory(sessionId);
+    await Promise.all([
+      chatHistoryService.clearHistory(sessionId),
+      documentService.clearSessionDocs(sessionId),
+    ]);
 
-    res.json({
-      success: true,
-      message: 'Chat history cleared successfully'
-    });
+    res.json({ success: true, message: 'Chat history cleared successfully' });
   } catch (error: any) {
     console.error('Clear history error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to clear chat history',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Failed to clear chat history', error: error.message });
   }
 });
 

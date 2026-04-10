@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   PaperAirplaneIcon,
@@ -10,12 +10,9 @@ import {
   SparklesIcon,
   XMarkIcon,
   ArrowPathIcon,
-  SunIcon,
   BeakerIcon,
   BugAntIcon,
   CloudIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
   ClockIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
@@ -53,11 +50,15 @@ export default function ChatbotPage() {
   const [sessionId, setSessionId] = useState<string>('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMounted, setIsMounted] = useState(false);
+  // Track whether user is near bottom — ref avoids re-renders
+  const isNearBottomRef = useRef(true);
+  const scrollRafRef = useRef<number | null>(null);
 
   // Initialize session ID
   useEffect(() => {
@@ -76,19 +77,27 @@ export default function ChatbotPage() {
     setIsMounted(true);
   }, []);
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      const scrollContainer = messagesEndRef.current.parentElement;
-      if (scrollContainer) {
-        // Smooth scroll to bottom
-        scrollContainer.scrollTo({
-          top: scrollContainer.scrollHeight,
-          behavior: 'smooth'
-        });
-      }
+  // Auto-scroll to bottom only if user is already near the bottom
+  // Called explicitly — NOT triggered on every message state update
+  const scrollToBottomIfNear = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    if (isNearBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
     }
-  }, [messages]);
+  }, []);
+
+  // Throttled scroll handler to detect user position
+  const handleScroll = useCallback(() => {
+    if (scrollRafRef.current) return;
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      const el = scrollContainerRef.current;
+      if (!el) return;
+      const threshold = 100;
+      isNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight <= threshold;
+    });
+  }, []);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -212,41 +221,55 @@ export default function ChatbotPage() {
     }
   };
 
-  // Handle voice recording
+  // Handle voice recording — uses Web Speech API for real speech-to-text
   const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      
-      const audioChunks: Blob[] = [];
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
-      };
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        // Here you would send to speech-to-text API
-        toast.success('Voice recorded! Converting to text...');
-        // Simulated transcription
-        setTimeout(() => {
-          setInput('How can I improve my crop yield?');
-          toast.success('Voice converted to text!');
-        }, 1000);
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      toast.success('Recording started...');
-    } catch (error) {
-      toast.error('Microphone access denied');
+    if (!SpeechRecognition) {
+      toast.error('Speech recognition is not supported in this browser. Try Chrome or Edge.');
+      return;
     }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN'; // Indian English — change to 'en-US' if preferred
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    mediaRecorderRef.current = recognition as any; // reuse ref to hold instance
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast.success('🎙️ Listening... Speak now');
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+      toast.success('✅ Voice converted to text!');
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsRecording(false);
+      if (event.error === 'not-allowed') {
+        toast.error('Microphone access denied. Please allow microphone permission.');
+      } else if (event.error === 'no-speech') {
+        toast.error('No speech detected. Please try again.');
+      } else {
+        toast.error(`Voice error: ${event.error}`);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    const recognition = mediaRecorderRef.current as any;
+    if (recognition && isRecording) {
+      recognition.stop();
       setIsRecording(false);
     }
   };
@@ -273,7 +296,10 @@ export default function ChatbotPage() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    
+    // User sent a message — re-enable auto-scroll to bottom
+    isNearBottomRef.current = true;
+    setTimeout(() => scrollToBottomIfNear(), 0);
+
     // Haptic feedback (if supported)
     if (navigator.vibrate) {
       navigator.vibrate(10);
@@ -323,6 +349,7 @@ export default function ChatbotPage() {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+        setTimeout(() => scrollToBottomIfNear(), 0);
 
         // Stream the response with variable speed for natural feel
         const fullResponse = data.data.response;
@@ -337,12 +364,14 @@ export default function ChatbotPage() {
                 : msg
             )
           );
+          // Only scroll every ~20 chars to avoid fighting user scroll
+          if (i % 20 === 0) scrollToBottomIfNear();
           // Variable delay for more natural typing
           const delay = fullResponse[i] === '.' || fullResponse[i] === '!' || fullResponse[i] === '?' ? 100 : 15;
           await new Promise(resolve => setTimeout(resolve, delay));
         }
 
-        // Mark streaming as complete
+        // Mark streaming as complete and do final scroll
         setMessages(prev => 
           prev.map(msg => 
             msg.id === assistantMessage.id 
@@ -350,6 +379,7 @@ export default function ChatbotPage() {
               : msg
           )
         );
+        scrollToBottomIfNear();
         
         // Success notification
         toast.success('✨ Response received!', {
@@ -600,15 +630,15 @@ export default function ChatbotPage() {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-green-50 scroll-smooth">
-                <AnimatePresence>
-                  {messages.map((message, index) => (
+              <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-green-50">
+                <AnimatePresence initial={false}>
+                  {messages.map((message) => (
                     <motion.div
                       key={message.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.05 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div className={`max-w-[80%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
@@ -785,7 +815,7 @@ export default function ChatbotPage() {
                       placeholder="Ask me anything about farming..."
                       rows={1}
                       maxLength={2000}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none resize-none transition-all max-h-32 overflow-y-auto bg-gray-50 focus:bg-white"
+                      className="w-full px-4 py-3 border-0 outline-none ring-0 focus:ring-0 focus:outline-none resize-none transition-all max-h-32 overflow-y-auto bg-transparent focus:bg-transparent shadow-none"
                       style={{ minHeight: '48px' }}
                     />
                     {/* Character count */}
