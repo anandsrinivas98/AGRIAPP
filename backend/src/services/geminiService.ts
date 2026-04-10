@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
+import { PdfDetector } from './pdfDetector';
+import { pdfOcrService } from './pdfOcrService';
 
 // Initialize Gemini (primary)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -228,10 +230,22 @@ Be specific, practical, and farmer-friendly.`;
       let rawText = '';
 
       if (ext === '.pdf') {
-        // Proper PDF parsing
         const dataBuffer = fs.readFileSync(filePath);
         const pdfData = await pdfParse(dataBuffer);
-        rawText = pdfData.text;
+
+        const detector = new PdfDetector();
+        const classification = detector.classify(dataBuffer, pdfData.text, pdfData.numpages);
+
+        if (classification.type === 'image-based' && process.env.ENABLE_OCR !== 'false') {
+          try {
+            const ocrResult = await pdfOcrService.extractWithOcr(dataBuffer, path.basename(filePath));
+            rawText = ocrResult.text;
+          } catch (err) {
+            return 'Could not extract text from this document. Please ensure the scan quality is sufficient or try a different file.';
+          }
+        } else {
+          rawText = classification.rawText;
+        }
       } else if (ext === '.docx' || ext === '.doc') {
         // Proper DOCX parsing
         const result = await mammoth.extractRawText({ path: filePath });

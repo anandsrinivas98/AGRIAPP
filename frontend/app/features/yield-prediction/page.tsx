@@ -14,6 +14,7 @@ import {
 } from '@/lib/types/yieldPrediction';
 import { DEFAULT_FORM_VALUES } from '@/lib/constants/yieldPrediction';
 import YieldPredictionService from '@/lib/services/yieldPredictionService';
+import YieldVisualizationCharts from '@/components/yield-prediction/YieldVisualizationCharts';
 
 export default function YieldPredictionPage() {
   // State management
@@ -292,11 +293,11 @@ export default function YieldPredictionPage() {
                 className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
               >
                 <h3 className="text-2xl font-bold text-gray-800 mb-6">📊 Visualizations</h3>
-                <div className="text-center py-12">
-                  <div className="text-4xl mb-4">📊</div>
-                  <p className="text-gray-600 mb-2">Interactive charts and graphs</p>
-                  <p className="text-sm text-gray-500">Will be implemented in Task 4.3</p>
-                </div>
+                <YieldVisualizationCharts
+                  prediction={predictionResult.prediction}
+                  analysis={predictionResult.analysis}
+                  comparisons={predictionResult.comparisons}
+                />
               </motion.div>
             </div>
 

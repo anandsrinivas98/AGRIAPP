@@ -16,6 +16,8 @@ import crypto from 'crypto';
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 import { cacheService } from './cacheService';
+import { PdfDetector } from './pdfDetector';
+import { pdfOcrService } from './pdfOcrService';
 
 const CHUNK_SIZE = 400;       // ~400 words per chunk
 const CHUNK_OVERLAP = 50;     // overlap between chunks for context continuity
@@ -57,7 +59,22 @@ class DocumentService {
     if (ext === '.pdf') {
       const buffer = fs.readFileSync(filePath);
       const data = await pdfParse(buffer);
-      return data.text;
+
+      const detector = new PdfDetector();
+      const classification = detector.classify(buffer, data.text, data.numpages);
+
+      if (classification.type === 'image-based' && process.env.ENABLE_OCR !== 'false') {
+        try {
+          const ocrResult = await pdfOcrService.extractWithOcr(buffer, path.basename(filePath));
+          const filename = path.basename(filePath);
+          console.log(`[OCR] Used OCR for ${filename}: ${ocrResult.text.length} characters extracted`);
+          return ocrResult.text;
+        } catch (err) {
+          throw new Error('Could not extract text from this document. If it is a scanned PDF, please ensure the scan quality is sufficient.');
+        }
+      }
+
+      return classification.rawText;
     }
 
     if (ext === '.docx' || ext === '.doc') {

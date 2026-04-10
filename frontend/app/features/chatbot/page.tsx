@@ -18,6 +18,7 @@ import {
 } from '@heroicons/react/24/outline';
 import PageHeader from '@/components/shared/PageHeader';
 import ChatHistoryModal from '@/components/chatbot/ChatHistoryModal';
+import ReactMarkdown from 'react-markdown';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -680,12 +681,23 @@ export default function ChatbotPage() {
                           )}
 
                           {/* Message Content */}
-                          <p className="whitespace-pre-wrap leading-relaxed">
-                            {message.content}
-                            {message.isStreaming && (
-                              <span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse"></span>
-                            )}
-                          </p>
+                          {message.role === 'user' ? (
+                            <p className="whitespace-pre-wrap leading-relaxed">
+                              {message.content}
+                              {message.isStreaming && (
+                                <span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse" />
+                              )}
+                            </p>
+                          ) : (
+                            <div className="prose prose-sm max-w-none prose-headings:text-gray-800 prose-headings:font-semibold prose-p:text-gray-700 prose-p:leading-relaxed prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:my-0.5 prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-code:text-green-700 prose-code:text-sm prose-blockquote:border-green-400 prose-blockquote:text-gray-600">
+                              <ReactMarkdown>
+                                {message.content}
+                              </ReactMarkdown>
+                              {message.isStreaming && (
+                                <span className="inline-block w-2 h-4 bg-gray-600 ml-1 animate-pulse" />
+                              )}
+                            </div>
+                          )}
 
                           {/* Timestamp */}
                           {isMounted && (
