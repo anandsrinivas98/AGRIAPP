@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { NavigationController } from '../components/navigation';
 import GlobalLoader, { ManualLoader } from '../components/shared/GlobalLoader';
 import FloatingChatWidget from '../components/chatbot/FloatingChatWidget';
+import KeepAliveProvider from '../components/providers/KeepAliveProvider';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -51,6 +52,7 @@ export default function RootLayout({
           <GlobalLoader />
           <ManualLoader />
           <NavigationController />
+          <KeepAliveProvider />
           {children}
           <FloatingChatWidget />
           <Toaster 
