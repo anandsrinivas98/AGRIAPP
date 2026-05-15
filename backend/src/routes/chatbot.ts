@@ -9,6 +9,7 @@ import { vectorService } from '../services/vectorService';
 import { chatHistoryService } from '../services/chatHistoryService';
 import { cacheService } from '../services/cacheService';
 import { documentService } from '../services/documentService';
+import { auth } from '../middleware/auth';
 
 // Extend Express Request type to include user (matches AuthRequest)
 declare module 'express-serve-static-core' {

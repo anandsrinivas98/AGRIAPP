@@ -9,11 +9,11 @@ const prisma = new PrismaClient();
 
 /**
  * Pings the /health endpoint to prevent Render from spinning down the instance.
+ * Uses API_BASE_URL (the production Render URL) so the ping goes through the
+ * public internet — which is what Render counts as real traffic.
  */
 function pingHealthEndpoint() {
-  // Use API_BASE_URL if set, otherwise fall back to localhost with the running port
-  const base = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
-  const url = `${base}/health`;
+  const url = `${config.api.baseUrl}/health`;
   const client = url.startsWith('https') ? https : http;
 
   const req = client.get(url, (res) => {
@@ -54,12 +54,19 @@ export function initializeCronJobs() {
   });
 
   // Keep Render instance alive — ping /health every 14 minutes
-  // Render free tier sleeps after 15 minutes of inactivity
-  // Runs in all environments so it works even if NODE_ENV is not set correctly
-  cron.schedule('*/14 * * * *', () => {
-    pingHealthEndpoint();
-  });
-  console.log('   - Render keepalive: Every 14 minutes');
+  // Render free tier sleeps after 15 minutes of inactivity.
+  // Requires API_BASE_URL=https://your-app.onrender.com in Render environment variables.
+  if (config.env === 'production') {
+    if (!process.env.API_BASE_URL) {
+      console.warn('⚠️  API_BASE_URL is not set — Render keep-alive ping will NOT run.');
+      console.warn('   Set API_BASE_URL=https://your-app.onrender.com in Render environment variables.');
+    } else {
+      cron.schedule('*/14 * * * *', () => {
+        pingHealthEndpoint();
+      });
+      console.log(`   - Render keepalive: Every 14 minutes → ${config.api.baseUrl}/health`);
+    }
+  }
 
   console.log('✅ Cron jobs initialized:');
   console.log('   - Pending users cleanup: Daily at 2:00 AM');
