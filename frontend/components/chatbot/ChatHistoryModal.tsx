@@ -2,6 +2,21 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
+// Helper: read the auth token from localStorage (same key used by AuthContext)
+const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('agrisense_token');
+  const expiry = localStorage.getItem('agrisense_token_expiry');
+  if (!token || !expiry) return null;
+  if (Date.now() > parseInt(expiry)) return null;
+  return token;
+};
+
+const authHeaders = (): HeadersInit => {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   XMarkIcon, 
@@ -50,6 +65,7 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const response = await fetch(`${apiUrl}/api/chatbot/sessions`, {
         credentials: 'include',
+        headers: authHeaders(),
       });
       
       if (response.ok) {
@@ -81,6 +97,7 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const response = await fetch(`${apiUrl}/api/chatbot/history/${sessionId}`, {
         credentials: 'include',
+        headers: authHeaders(),
       });
 
       if (response.ok) {
@@ -109,6 +126,7 @@ const ChatHistoryModal = React.memo(function ChatHistoryModal({
       const response = await fetch(`${apiUrl}/api/chatbot/history/${sessionId}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: authHeaders(),
       });
       
       if (response.ok) {
