@@ -641,7 +641,7 @@ router.post('/', chatRateLimit, upload.fields([
  * Get chat history for a session
  * GET /api/chatbot/history/:sessionId
  */
-router.get('/history/:sessionId', async (req, res): Promise<void> => {
+router.get('/history/:sessionId', auth, async (req, res): Promise<void> => {
   try {
     const { sessionId } = req.params;
     const userId = req.user?.userId || 'guest';
@@ -670,9 +670,14 @@ router.get('/history/:sessionId', async (req, res): Promise<void> => {
  * Get all chat sessions for a user
  * GET /api/chatbot/sessions
  */
-router.get('/sessions', async (req, res): Promise<void> => {
+router.get('/sessions', auth, async (req, res): Promise<void> => {
   try {
-    const userId = req.user?.userId || 'guest';
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Authentication required' });
+      return;
+    }
 
     const sessions = await chatHistoryService.getUserSessions(userId);
 

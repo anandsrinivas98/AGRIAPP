@@ -130,11 +130,13 @@ class ChatHistoryService {
       const result = await prisma.chatMessage.upsert({
         where: { sessionId },
         update: {
+          userId,
           message: JSON.stringify(session.messages),
           response: session.contextMemory || null,
         },
         create: {
           sessionId,
+          userId,
           message: JSON.stringify(session.messages),
           response: session.contextMemory || null,
         },
@@ -277,16 +279,14 @@ class ChatHistoryService {
     timestamp: string;
   }>> {
     try {
-      // Get all sessions (we'll filter by userId later if needed)
-      // For now, return all sessions since sessionId doesn't include userId
+      // Filter strictly by userId so users only see their own sessions
       const sessions = await prisma.chatMessage.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
         take: 20,
       });
 
-      console.log(`Found ${sessions.length} sessions in database`);
+      console.log(`Found ${sessions.length} sessions for user: ${userId}`);
 
       return sessions.map(s => {
         try {

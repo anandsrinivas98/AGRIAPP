@@ -485,11 +485,13 @@ model LabourAnalytics {
 model ChatMessage {
   id        String   @id @default(cuid())
   sessionId String   @unique
+  userId    String   @default("guest")
   message   String
   response  String?
   language  String   @default("en")
   createdAt DateTime @default(now())
 
+  @@index([userId])
   @@map("chat_messages")
 }
 
