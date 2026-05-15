@@ -122,46 +122,61 @@ export default function CropRecommendationPage() {
       }
 
       const data = await response.json();
-      
-      if (data.success && data.data) {
-        // Format the response for enhanced display
-        const formattedRecommendations = data.data.recommendations?.map((crop: any) => ({
-          crop: crop.crop || crop.name,
-          confidence: crop.confidence || crop.probability || 85,
-          yield: crop.yield || 'N/A',
-          profit: crop.profit || 'Medium',
-          probability: crop.confidence || crop.probability || 85
-        })) || [];
 
-        setRecommendations({
-          crops: formattedRecommendations,
-          inputData: {
-            N: parseFloat(formData.nitrogen),
-            P: parseFloat(formData.phosphorus),
-            K: parseFloat(formData.potassium),
-            pH: parseFloat(formData.ph),
-            temperature: parseFloat(formData.temperature),
-            humidity: parseFloat(formData.humidity),
-            rainfall: parseFloat(formData.rainfall),
-            location: formData.location
-          },
-          soilData: {
-            N: parseFloat(formData.nitrogen),
-            P: parseFloat(formData.phosphorus),
-            K: parseFloat(formData.potassium),
-            pH: parseFloat(formData.ph)
-          },
-          reasons: data.data.reasons || [
-            'Based on your soil and weather conditions',
-            'Optimized for your location',
-            'Suitable for current season'
-          ]
-        });
-        
-        toast.success('Recommendations generated successfully!');
-      } else {
-        throw new Error(data.message || 'Invalid response from server');
+      // Support both wrapped { success, data } and direct { recommendations } formats
+      const recList =
+        data?.data?.recommendations ??   // backend-wrapped format
+        data?.recommendations ??          // direct ML service format
+        [];
+
+      const reasons =
+        data?.data?.reasons ??
+        data?.reasons ??
+        [
+          'Based on your soil and weather conditions',
+          'Optimized for your location',
+          'Suitable for current season'
+        ];
+
+      if (recList.length === 0) {
+        throw new Error(data.message || 'No recommendations returned from server');
       }
+
+      // Format the response for enhanced display
+      const formattedRecommendations = recList.map((crop: any) => ({
+        crop: crop.crop || crop.name,
+        confidence: typeof crop.confidence === 'number'
+          ? Math.round(crop.confidence <= 1 ? crop.confidence * 100 : crop.confidence)
+          : crop.probability || 85,
+        yield: crop.yield_estimate || crop.yield || 'N/A',
+        profit: crop.profit_potential || crop.profit || 'Medium',
+        probability: typeof crop.confidence === 'number'
+          ? Math.round(crop.confidence <= 1 ? crop.confidence * 100 : crop.confidence)
+          : crop.probability || 85
+      }));
+
+      setRecommendations({
+        crops: formattedRecommendations,
+        inputData: {
+          N: parseFloat(formData.nitrogen),
+          P: parseFloat(formData.phosphorus),
+          K: parseFloat(formData.potassium),
+          pH: parseFloat(formData.ph),
+          temperature: parseFloat(formData.temperature),
+          humidity: parseFloat(formData.humidity),
+          rainfall: parseFloat(formData.rainfall),
+          location: formData.location
+        },
+        soilData: {
+          N: parseFloat(formData.nitrogen),
+          P: parseFloat(formData.phosphorus),
+          K: parseFloat(formData.potassium),
+          pH: parseFloat(formData.ph)
+        },
+        reasons
+      });
+
+      toast.success('Recommendations generated successfully!');
     } catch (error: any) {
       console.error('Error getting recommendations:', error);
       
