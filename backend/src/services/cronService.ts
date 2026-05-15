@@ -11,12 +11,13 @@ const prisma = new PrismaClient();
  * Pings the /health endpoint to prevent Render from spinning down the instance.
  */
 function pingHealthEndpoint() {
-  const url = `${config.api.baseUrl}/health`;
+  // Use API_BASE_URL if set, otherwise fall back to localhost with the running port
+  const base = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+  const url = `${base}/health`;
   const client = url.startsWith('https') ? https : http;
 
   const req = client.get(url, (res) => {
     console.log(`🏓 Keep-alive ping → ${url} [${res.statusCode}]`);
-    // Drain the response so the socket closes cleanly
     res.resume();
   });
 
@@ -54,12 +55,11 @@ export function initializeCronJobs() {
 
   // Keep Render instance alive — ping /health every 14 minutes
   // Render free tier sleeps after 15 minutes of inactivity
-  if (config.env === 'production') {
-    cron.schedule('*/14 * * * *', () => {
-      pingHealthEndpoint();
-    });
-    console.log('   - Render keepalive: Every 14 minutes (production only)');
-  }
+  // Runs in all environments so it works even if NODE_ENV is not set correctly
+  cron.schedule('*/14 * * * *', () => {
+    pingHealthEndpoint();
+  });
+  console.log('   - Render keepalive: Every 14 minutes');
 
   console.log('✅ Cron jobs initialized:');
   console.log('   - Pending users cleanup: Daily at 2:00 AM');
