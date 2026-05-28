@@ -1,15 +1,17 @@
-import { Router, Request } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
 import { geminiService } from '../services/geminiService';
 import { vectorService } from '../services/vectorService';
 import { chatHistoryService } from '../services/chatHistoryService';
 import { cacheService } from '../services/cacheService';
 import { documentService } from '../services/documentService';
 import { auth } from '../middleware/auth';
+import { config } from '../config';
 
 // Extend Express Request type to include user (matches AuthRequest)
 declare module 'express-serve-static-core' {
@@ -20,6 +22,26 @@ declare module 'express-serve-static-core' {
       role?: string;
     };
   }
+}
+
+/**
+ * Optional auth middleware — populates req.user if a valid token is present,
+ * but does NOT reject the request if there is no token.
+ * Used on the chatbot POST so guest users can still chat, but logged-in users
+ * get their messages saved under their real userId.
+ */
+function optionalAuth(req: Request, res: Response, next: NextFunction): void {
+  try {
+    let token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) token = req.cookies?.token;
+    if (token) {
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
+      req.user = decoded;
+    }
+  } catch {
+    // Invalid or missing token — continue as guest
+  }
+  next();
 }
 
 const router = Router();
@@ -501,7 +523,7 @@ function buildCacheKey(message: string, sessionId: string, hasDocuments: boolean
  *       200:
  *         description: AI response generated successfully
  */
-router.post('/', chatRateLimit, upload.fields([
+router.post('/', chatRateLimit, optionalAuth, upload.fields([
   { name: 'image', maxCount: 1 },
   { name: 'file', maxCount: 1 }
 ]), async (req, res): Promise<void> => {

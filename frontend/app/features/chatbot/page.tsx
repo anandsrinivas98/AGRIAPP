@@ -328,8 +328,10 @@ export default function ChatbotPage() {
       }
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('agrisense_token') : null;
       const response = await fetch(`${apiUrl}/api/chatbot`, {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData
       });
 

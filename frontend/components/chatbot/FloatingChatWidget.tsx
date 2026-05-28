@@ -182,7 +182,12 @@ export default function FloatingChatWidget() {
       if (selectedImage) formData.append('image', selectedImage);
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const res = await fetch(`${apiUrl}/api/chatbot`, { method: 'POST', body: formData });
+      const token = typeof window !== 'undefined' ? localStorage.getItem('agrisense_token') : null;
+      const res = await fetch(`${apiUrl}/api/chatbot`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
       const data = await res.json();
 
       if (data.success) {

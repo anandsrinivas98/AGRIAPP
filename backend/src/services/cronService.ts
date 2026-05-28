@@ -2,10 +2,7 @@ import cron from 'node-cron';
 import https from 'https';
 import http from 'http';
 import { cleanupExpiredPendingUsers } from '../scripts/cleanupPendingUsers';
-import { PrismaClient } from '@prisma/client';
 import { config } from '../config';
-
-const prisma = new PrismaClient();
 
 /**
  * Pings the /health endpoint to prevent Render from spinning down the instance.
@@ -44,15 +41,6 @@ export function initializeCronJobs() {
     }
   });
 
-  // Keep Neon DB alive every 4 minutes to prevent auto-suspend
-  cron.schedule('*/4 * * * *', async () => {
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-    } catch {
-      // silently ignore — DB will wake on next real request
-    }
-  });
-
   // Keep Render instance alive — ping /health every 14 minutes
   // Render free tier sleeps after 15 minutes of inactivity.
   // Requires API_BASE_URL=https://your-app.onrender.com in Render environment variables.
@@ -70,5 +58,4 @@ export function initializeCronJobs() {
 
   console.log('✅ Cron jobs initialized:');
   console.log('   - Pending users cleanup: Daily at 2:00 AM');
-  console.log('   - DB keepalive: Every 4 minutes');
 }
