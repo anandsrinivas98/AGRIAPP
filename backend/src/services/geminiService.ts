@@ -13,13 +13,11 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
 
-// Free models on OpenRouter — verified working April 2026
+// openrouter/free automatically picks a random available free model,
+// filtering for features needed by the request (tool calling, vision, etc.)
+// No need to maintain a hardcoded list — OpenRouter keeps it up to date.
 const OPENROUTER_MODELS = [
-  'nvidia/nemotron-3-nano-30b-a3b:free',      // NVIDIA free (primary fallback)
-  'google/gemma-3-27b-it:free',               // Google Gemma 27B
-  'mistralai/mistral-7b-instruct:free',        // Mistral 7B
-  'z-ai/glm-4.5-air:free',                    // GLM fallback
-  'deepseek/deepseek-r1-0528-qwen3-8b:free',  // DeepSeek free
+  'openrouter/free',
 ];
 
 interface ChatMessage {
