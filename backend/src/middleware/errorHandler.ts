@@ -8,9 +8,10 @@ export interface AppError extends Error {
 // Paths that bots/browsers routinely probe — respond silently without logging
 const SILENT_404_PATHS = new Set(['/.env', '/favicon.ico', '/robots.txt', '/.git', '/wp-admin']);
 
-export const notFound = (req: Request, res: Response, next: NextFunction) => {
+export const notFound = (req: Request, res: Response, next: NextFunction): void => {
   if (SILENT_404_PATHS.has(req.path)) {
-    return res.status(404).end();
+    res.status(404).end();
+    return;
   }
   const error = new Error(`Not Found - ${req.originalUrl}`) as AppError;
   error.statusCode = 404;
