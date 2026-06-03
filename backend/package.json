@@ -15,7 +15,8 @@
     "migrate:prod": "prisma migrate deploy",
     "seed": "ts-node src/scripts/seed.ts",
     "generate": "prisma generate",
-    "cleanup:pending": "ts-node src/scripts/cleanupPendingUsers.ts"
+    "cleanup:pending": "ts-node src/scripts/cleanupPendingUsers.ts",
+    "db:enable-rls": "ts-node src/scripts/enableRls.ts"
   },
   "dependencies": {
     "@chroma-core/default-embed": "^0.1.9",
