@@ -20,9 +20,26 @@ import apiV1Routes from './api/v1';
 
 const app = express();
 const server = createServer(app);
+
+// Build allowed origins list (used by both Express CORS and Socket.IO)
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'https://agriapp-one.vercel.app',
+  /https:\/\/agriapp-.*\.vercel\.app$/,
+  'http://localhost:3000',
+  process.env.ALLOWED_ORIGIN_1,
+  process.env.ALLOWED_ORIGIN_2,
+].filter(Boolean) as (string | RegExp)[];
+
 const io = new Server(server, {
   cors: {
-    origin: config.frontend.url,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed = allowedOrigins.some(o =>
+        typeof o === 'string' ? o === origin : o.test(origin)
+      );
+      callback(null, allowed ? origin : false);
+    },
     credentials: true,
   },
 });
@@ -62,12 +79,6 @@ app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
-const allowedOrigins = [
-  config.frontend.url,
-  'https://agriapp-one.vercel.app',
-  /https:\/\/agriapp-.*\.vercel\.app$/,
-  'http://localhost:3000',
-];
 console.log('🔧 CORS configured for origins:', allowedOrigins);
 app.use(cors({
   origin: (origin, callback) => {
