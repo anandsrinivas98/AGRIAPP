@@ -4,25 +4,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-
-const stats = [
-  {
-    key: 'farmers',
-    icon: '👨‍🌾',
-  },
-  {
-    key: 'accuracy',
-    icon: '🎯',
-  },
-  {
-    key: 'yield_increase',
-    icon: '📈',
-  },
-  {
-    key: 'reach',
-    icon: '🌍',
-  },
-];
+import { forumService } from '@/services/forumService';
 
 function CountUpAnimation({ 
   value, 
@@ -69,6 +51,60 @@ export default function Stats() {
   const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
+  const [mounted, setMounted] = useState(false);
+  
+  const [dbStats, setDbStats] = useState<{
+    totalUsers: number;
+    totalThreads: number;
+    totalReplies: number;
+    activeToday: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    forumService.getForumStats()
+      .then(data => {
+        if (data) {
+          setDbStats({
+            totalUsers: data.totalUsers || 0,
+            totalThreads: data.totalThreads || 0,
+            totalReplies: data.totalReplies || 0,
+            activeToday: data.activeToday || 0,
+          });
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching real-time forum stats:', err);
+      });
+  }, []);
+
+  const stats = [
+    {
+      key: 'farmers',
+      icon: '👨‍🌾',
+      suffix: '+',
+      value: dbStats ? dbStats.totalUsers : 7,
+    },
+    {
+      key: 'threads',
+      icon: '💬',
+      suffix: '+',
+      value: dbStats ? dbStats.totalThreads : 6,
+    },
+    {
+      key: 'replies',
+      icon: '🎯',
+      suffix: '+',
+      value: dbStats ? dbStats.totalReplies : 6,
+    },
+    {
+      key: 'active_today',
+      icon: '📈',
+      suffix: '+',
+      value: dbStats ? dbStats.activeToday : 6,
+    },
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -104,10 +140,10 @@ export default function Stats() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
-            {t('stats.title', 'Empowering Sustainable Agriculture')}
+            {t('stats.title', 'AgriSense Community Impact')}
           </h2>
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            {t('stats.subtitle', 'Providing qualitative insights and tools to help farmers optimize their crops and resources')}
+            {t('stats.subtitle', 'Real-time statistics from our growing network of farmers and experts collaborating on sustainable agriculture')}
           </p>
         </motion.div>
 
@@ -144,7 +180,19 @@ export default function Stats() {
                     {stat.icon}
                   </motion.div>
                   
-                  <h3 className="text-xl font-bold text-white mb-3 font-display">
+                  <div className="text-4xl md:text-5xl font-bold text-white mb-3 font-display">
+                    {mounted ? (
+                      <CountUpAnimation 
+                        value={stat.value} 
+                        isInView={isInView}
+                      />
+                    ) : (
+                      <span>{stat.value}</span>
+                    )}
+                    <span className="text-secondary-300">{stat.suffix}</span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-2 font-display">
                     {t(`stats.${stat.key}.title`, stat.key.replace('_', ' '))}
                   </h3>
                   

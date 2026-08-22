@@ -150,23 +150,23 @@
     }
   },
   "stats": {
-    "title": "Empowering Sustainable Agriculture",
-    "subtitle": "Providing qualitative insights and tools to help farmers optimize their crops and resources",
+    "title": "AgriSense Community Impact",
+    "subtitle": "Real-time statistics from our growing network of farmers and experts collaborating on sustainable agriculture",
     "farmers": {
-      "title": "Empowering Farmers",
-      "description": "Providing data-driven agricultural tools to farmers across India for smarter crop management."
+      "title": "Registered Farmers",
+      "description": "Verified agricultural producers collaborating on the AgriSense platform."
     },
-    "accuracy": {
-      "title": "Accurate AI Insights",
-      "description": "Utilizing advanced machine learning models trained on regional soil and weather patterns."
+    "threads": {
+      "title": "Community Discussions",
+      "description": "Active forum threads sharing questions, agricultural expertise, and local resources."
     },
-    "yield_increase": {
-      "title": "Enhanced Yields",
-      "description": "Helping optimize crop selection, fertilizer use, and resources for maximum agricultural productivity."
+    "replies": {
+      "title": "Helpful Answers",
+      "description": "Community answers helping fellow growers resolve crop cultivation and pest issues."
     },
-    "reach": {
-      "title": "Nationwide Support",
-      "description": "Supporting agricultural communities across diverse regions and climates in India."
+    "active_today": {
+      "title": "Active Conversations",
+      "description": "New discussions and responses created in the community forum today."
     },
     "predictions": {
       "title": "Continuous Predictions",

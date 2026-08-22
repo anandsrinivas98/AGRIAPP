@@ -12,6 +12,7 @@ const testimonials = [
     name: 'Wheat Cultivator',
     role: 'Punjab',
     avatar: '/avatars/farmer1.jpg',
+    icon: '🌾',
     rating: 5,
     text: 'AgriSense has been a valuable tool for crop planning. The AI crop recommendations helped us select the right variety and optimize our sowing schedule.',
     crop: 'Wheat',
@@ -22,6 +23,7 @@ const testimonials = [
     name: 'Organic Grower',
     role: 'Maharashtra',
     avatar: '/avatars/farmer2.jpg',
+    icon: '🌱',
     rating: 5,
     text: 'The disease detection feature is highly beneficial. Identifying crop diseases early helped us take timely corrective measures using sustainable practices.',
     crop: 'Tomato',
@@ -32,6 +34,7 @@ const testimonials = [
     name: 'Rice Cultivator',
     role: 'West Bengal',
     avatar: '/avatars/farmer3.jpg',
+    icon: '🍚',
     rating: 5,
     text: 'The weather monitoring and irrigation planning tools have helped us manage our water resources more efficiently throughout the cultivation cycle.',
     crop: 'Rice',
@@ -42,6 +45,7 @@ const testimonials = [
     name: 'Agricultural Researcher',
     role: 'Research Institute',
     avatar: '/avatars/scientist1.jpg',
+    icon: '🔬',
     rating: 5,
     text: 'The predictive insights and data-driven crop analysis provided by the platform offer a solid reference for sustainable farming research.',
     crop: 'Research',
@@ -124,16 +128,19 @@ export default function Testimonials() {
                 >
                   <motion.div
                     variants={itemVariants}
-                    className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mx-auto max-w-4xl"
+                    className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mx-auto max-w-4xl border border-gray-100 border-l-4 border-l-emerald-500"
                   >
                     <div className="flex flex-col md:flex-row items-center gap-8">
                       {/* Avatar and info */}
                       <div className="flex-shrink-0 text-center md:text-left">
                         <motion.div
                           whileHover={{ scale: 1.05 }}
-                          className="w-24 h-24 bg-gradient-to-br from-primary-400 to-accent-400 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4 mx-auto md:mx-0"
+                          className="w-24 h-24 bg-gradient-to-tr from-green-500 via-emerald-600 to-teal-500 rounded-2xl shadow-lg flex flex-col items-center justify-center text-white relative mb-4 mx-auto md:mx-0 border border-white/20"
                         >
-                          {testimonial.name.split(' ').map(n => n[0]).join('')}
+                          <span className="text-4xl mb-1 filter drop-shadow">{testimonial.icon}</span>
+                          <span className="text-[10px] uppercase tracking-widest font-bold opacity-80 font-sans">
+                            {testimonial.name.split(' ').map(n => n[0]).join('')}
+                          </span>
                         </motion.div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-1">
                           {testimonial.name}
@@ -153,18 +160,6 @@ export default function Testimonials() {
                             </motion.div>
                           ))}
                         </div>
-
-                        {/* Metrics */}
-                        {testimonial.yield_increase > 0 && (
-                          <div className="bg-primary-50 rounded-lg p-3">
-                            <div className="text-2xl font-bold text-primary-600">
-                              +{testimonial.yield_increase}%
-                            </div>
-                            <div className="text-sm text-primary-700">
-                              {t('testimonials.yield_increase', 'Yield Increase')}
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       {/* Testimonial content */}
@@ -173,16 +168,18 @@ export default function Testimonials() {
                           initial={{ opacity: 0 }}
                           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                           transition={{ delay: 0.3 }}
-                          className="text-6xl text-primary-200 mb-4"
+                          className="text-primary-200 mb-4"
                         >
-                          "
+                          <svg className="w-10 h-10 text-emerald-200" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.851h5v10h-10zm-14 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.851h5v10h-11z" />
+                          </svg>
                         </motion.div>
                         
                         <motion.p
                           initial={{ opacity: 0, y: 20 }}
                           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                           transition={{ delay: 0.4 }}
-                          className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6"
+                          className="text-lg md:text-xl text-gray-700 italic leading-relaxed mb-6"
                         >
                           {testimonial.text}
                         </motion.p>
@@ -191,14 +188,18 @@ export default function Testimonials() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                           transition={{ delay: 0.5 }}
-                          className="flex items-center gap-4"
+                          className="flex flex-wrap items-center justify-center md:justify-start gap-4"
                         >
-                          <span className="px-3 py-1 bg-accent-100 text-accent-700 rounded-full text-sm font-medium">
+                          <span className="px-3 py-1 bg-accent-50 text-accent-700 rounded-full text-xs font-semibold uppercase tracking-wider border border-accent-100">
                             {testimonial.crop}
                           </span>
-                          <span className="text-gray-500 text-sm">
-                            {t('testimonials.verified', 'Verified Farmer')} ✓
-                          </span>
+                          
+                          <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-100">
+                            <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{t('testimonials.verified', 'Verified Farmer')}</span>
+                          </div>
                         </motion.div>
                       </div>
                     </div>
@@ -237,7 +238,7 @@ export default function Testimonials() {
                 whileHover={{ scale: 1.2 }}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-3 h-3 rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-primary-600' : 'bg-gray-300'
+                  index === currentIndex ? 'bg-emerald-600' : 'bg-gray-300'
                 }`}
               />
             ))}
@@ -251,23 +252,22 @@ export default function Testimonials() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-16 text-center"
         >
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-600 mb-8 font-medium">
             {t('testimonials.trust', 'Trusted by agricultural institutions and government bodies')}
           </p>
           
-          <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-            {/* Placeholder for partner logos */}
-            <div className="h-12 w-32 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-              ICAR Logo
+          <div className="flex flex-wrap justify-center items-center gap-8">
+            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
+              🏛️ ICAR Research
             </div>
-            <div className="h-12 w-32 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-              Ministry of Agriculture
+            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
+              🌾 Ministry of Ag
             </div>
-            <div className="h-12 w-32 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-              FAO Partner
+            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
+              🇺🇳 FAO Partner
             </div>
-            <div className="h-12 w-32 bg-gray-200 rounded flex items-center justify-center text-gray-500 text-sm">
-              AgTech Alliance
+            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
+              🚜 AgTech Alliance
             </div>
           </div>
         </motion.div>
