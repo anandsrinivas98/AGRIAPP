@@ -243,19 +243,21 @@ export default function Hero() {
 
             <motion.div
               variants={itemVariants}
-              className="mt-12 flex items-center justify-center lg:justify-start space-x-8"
+              className="mt-12 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 text-gray-600 border-t border-gray-100 pt-8"
             >
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">10K+</div>
-                <div className="text-sm text-gray-600">{t('hero.stats.farmers', 'Farmers')}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-primary-600 text-xl">🌱</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.farmers', 'Trusted by farmers across India')}</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">95%</div>
-                <div className="text-sm text-gray-600">{t('hero.stats.accuracy', 'Accuracy')}</div>
+              <div className="hidden sm:block h-4 w-px bg-gray-300" />
+              <div className="flex items-center gap-2">
+                <span className="text-primary-600 text-xl">🎯</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.accuracy', 'High-accuracy AI crop insights')}</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">30%</div>
-                <div className="text-sm text-gray-600">{t('hero.stats.yield', 'Yield Increase')}</div>
+              <div className="hidden sm:block h-4 w-px bg-gray-300" />
+              <div className="flex items-center gap-2">
+                <span className="text-primary-600 text-xl">📈</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.yield', 'Sustainable yield improvement')}</span>
               </div>
             </motion.div>
           </motion.div>

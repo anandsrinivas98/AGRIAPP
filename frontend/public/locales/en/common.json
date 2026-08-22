@@ -12,9 +12,9 @@
       "secondary": "Watch Demo"
     },
     "stats": {
-      "farmers": "Farmers",
-      "accuracy": "Accuracy",
-      "yield": "Yield Increase"
+      "farmers": "Trusted by farmers across India",
+      "accuracy": "High-accuracy AI crop insights",
+      "yield": "Sustainable yield improvement"
     }
   },
   "features": {
@@ -150,15 +150,36 @@
     }
   },
   "stats": {
-    "title": "Trusted by Farmers Worldwide",
-    "subtitle": "Join thousands of farmers who have transformed their agriculture with AgriSense",
-    "farmers": "farmers",
-    "accuracy": "accuracy",
-    "yield_increase": "yield increase",
-    "countries": "countries",
-    "predictions": "AI Predictions Made",
-    "uptime": "System Uptime",
-    "support": "Expert Support"
+    "title": "Empowering Sustainable Agriculture",
+    "subtitle": "Providing qualitative insights and tools to help farmers optimize their crops and resources",
+    "farmers": {
+      "title": "Empowering Farmers",
+      "description": "Providing data-driven agricultural tools to farmers across India for smarter crop management."
+    },
+    "accuracy": {
+      "title": "Accurate AI Insights",
+      "description": "Utilizing advanced machine learning models trained on regional soil and weather patterns."
+    },
+    "yield_increase": {
+      "title": "Enhanced Yields",
+      "description": "Helping optimize crop selection, fertilizer use, and resources for maximum agricultural productivity."
+    },
+    "reach": {
+      "title": "Nationwide Support",
+      "description": "Supporting agricultural communities across diverse regions and climates in India."
+    },
+    "predictions": {
+      "title": "Continuous Predictions",
+      "description": "Generates real-time crop recommendations and alerts daily"
+    },
+    "uptime": {
+      "title": "Reliable Platform",
+      "description": "High availability system with real-time weather and price updates"
+    },
+    "support": {
+      "title": "Expert Guidance",
+      "description": "Dedicated agricultural support and chatbot assistance available anytime"
+    }
   },
   "testimonials": {
     "title": "What Farmers Say About AgriSense",
