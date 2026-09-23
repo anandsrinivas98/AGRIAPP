@@ -68,7 +68,8 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    const ext = path.extname(file.originalname).toLowerCase().replace(/[^a-z0-9.]/gi, '');
+    cb(null, `${Date.now()}-${crypto.randomUUID()}${ext}`);
   }
 });
 
@@ -536,8 +537,8 @@ router.post('/', chatRateLimit, optionalAuth, upload.fields([
       return;
     }
 
-    const chatSessionId = sessionId || `session_${userId || 'guest'}_${Date.now()}`;
-    const chatUserId = userId || req.user?.userId || 'guest';
+    const chatUserId = req.user?.userId || 'guest';
+    const chatSessionId = sessionId || `session_${chatUserId}_${Date.now()}`;
 
     // ── 1. Load conversation history ────────────────────────────────────────
     let history: any[] = [];

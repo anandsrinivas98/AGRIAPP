@@ -145,8 +145,19 @@ app.get('/health', async (req, res) => {
 app.use('/api/v1', apiV1Routes); // New organized API structure
 app.use('/api', routes); // Legacy routes for backward compatibility
 
-// Static files (uploads)
-app.use('/uploads', express.static('uploads'));
+// Static files (uploads) with strict security headers
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Security-Policy', "default-src 'none'");
+  next();
+}, express.static('uploads', {
+  dotfiles: 'ignore',
+  setHeaders: (res, filePath) => {
+    if (!filePath.match(/\.(jpg|jpeg|png|webp)$/i)) {
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+  }
+}));
 
 // Socket.IO setup
 setupSocketIO(io);
@@ -173,25 +184,27 @@ const initializeServices = async () => {
   }
 };
 
-// Start server
-const PORT = config.port;
-server.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-  console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
-  
-  // Initialize services after server starts
-  await initializeServices();
-  
-  // Initialize labour scheduling alert system
-  try {
-    const { default: labourSchedulingService } = await import('./services/labourSchedulingService');
-    labourSchedulingService.initializeAlertSystem();
-    console.log('✅ Labour scheduling alert system initialized');
-  } catch (error) {
-    console.error('⚠️  Labour scheduling initialization failed:', error);
-  }
-});
+// Start server (only in non-test mode)
+if (config.env !== 'test') {
+  const PORT = config.port;
+  server.listen(PORT, async () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+    console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
+    
+    // Initialize services after server starts
+    await initializeServices();
+    
+    // Initialize labour scheduling alert system
+    try {
+      const { default: labourSchedulingService } = await import('./services/labourSchedulingService');
+      labourSchedulingService.initializeAlertSystem();
+      console.log('✅ Labour scheduling alert system initialized');
+    } catch (error) {
+      console.error('⚠️  Labour scheduling initialization failed:', error);
+    }
+  });
+}
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

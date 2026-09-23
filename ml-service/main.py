@@ -4,7 +4,7 @@ FastAPI-based machine learning inference service for crop recommendations,
 yield predictions, and disease detection.
 """
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -25,7 +25,8 @@ from schemas.requests import (
 from schemas.responses import (
     CropRecommendationResponse,
     YieldPredictionResponse,
-    DiseaseDetectionResponse
+    DiseaseDetectionResponse,
+    DiseasePrediction
 )
 from utils.image_processor import ImageProcessor
 from utils.logger import setup_logger
@@ -169,9 +170,11 @@ async def recommend_crops(request: CropRecommendationRequest):
             }
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in crop recommendation: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Crop recommendation processing failed. Please check inputs.")
 
 @app.post("/predict/yield", response_model=YieldPredictionResponse)
 async def predict_yield(request: YieldPredictionRequest):
@@ -221,9 +224,11 @@ async def predict_yield(request: YieldPredictionRequest):
             "timestamp": datetime.now().isoformat()
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in yield prediction: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Yield prediction processing failed. Please check inputs.")
 
 @app.post("/detect/disease", response_model=DiseaseDetectionResponse)
 async def detect_disease(
@@ -247,8 +252,12 @@ async def detect_disease(
         if not file.content_type.startswith('image/'):
             raise HTTPException(status_code=400, detail="File must be an image")
         
-        # Process image
+        # Validate file size (max 5MB)
+        MAX_FILE_SIZE = 5 * 1024 * 1024
         image_data = await file.read()
+        if len(image_data) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail="Image file exceeds 5MB size limit")
+            
         processed_image = await image_processor.process_image(image_data)
         
         # Detect disease
@@ -257,21 +266,25 @@ async def detect_disease(
             crop_type=crop_type
         )
         
-        logger.info(f"Detected disease: {detection_result['disease_name']} with confidence: {detection_result['confidence']}")
+        logger.info(f"Detected disease: {detection_result['detected_disease']} with confidence: {detection_result['confidence']}")
         
         return DiseaseDetectionResponse(
-            disease_name=detection_result["disease_name"],
-            severity=detection_result["severity"],
+            success=True,
+            detected_disease=detection_result["detected_disease"],
             confidence=detection_result["confidence"],
-            treatment_recommendations=detection_result["treatment_recommendations"],
-            prevention_tips=detection_result.get("prevention_tips", []),
-            annotations=detection_result.get("annotations"),
-            timestamp=datetime.now().isoformat()
+            severity=detection_result["severity"],
+            all_predictions=[
+                DiseasePrediction(**p) for p in detection_result["all_predictions"]
+            ],
+            recommendations=detection_result["recommendations"],
+            timestamp=detection_result.get("timestamp", datetime.now().isoformat())
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in disease detection: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Detection failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Disease detection failed. Please ensure a valid image was provided.")
 
 @app.get("/models/status")
 async def get_models_status():
@@ -295,8 +308,11 @@ async def get_models_status():
     }
 
 @app.post("/models/reload")
-async def reload_models():
-    """Reload all ML models"""
+async def reload_models(x_internal_secret: Optional[str] = Header(None, alias="X-Internal-Secret")):
+    """Reload all ML models (Protected internal endpoint)"""
+    expected_secret = os.getenv("INTERNAL_SERVICE_SECRET")
+    if expected_secret and x_internal_secret != expected_secret:
+        raise HTTPException(status_code=403, detail="Unauthorized access to model reload")
     try:
         await crop_recommender.load_model()
         await yield_predictor.load_model()
@@ -305,7 +321,7 @@ async def reload_models():
         return {"message": "All models reloaded successfully"}
     except Exception as e:
         logger.error(f"Error reloading models: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to reload models: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reload models")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7860))

@@ -132,6 +132,9 @@ const clearToken = () => {
   localStorage.removeItem(TOKEN_EXPIRY_KEY);
 };
 
+// Enable sending httpOnly cookies with requests
+axios.defaults.withCredentials = true;
+
 // Add request interceptor to include token
 axios.interceptors.request.use(
   (config) => {

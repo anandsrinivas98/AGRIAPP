@@ -1,99 +1,164 @@
-# Dependencies
+# ==============================================================================
+# AgriSense Monorepo .gitignore
+# Covers: Frontend V1, Standalone Frontend V2, Backend Express, FastAPI ML Service
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Dependencies & Package Managers
+# ------------------------------------------------------------------------------
 node_modules/
-*/node_modules/
+**/node_modules/
+.pnp/
+.pnp.js
+jspm_packages/
+.pnpm-store/
+.npm/
+.yarn-integrity
+*.tgz
 
-# Production builds
-dist/
-build/
+# ------------------------------------------------------------------------------
+# 2. Production & Compiler Builds
+# ------------------------------------------------------------------------------
 .next/
+**/.next/
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+.nuxt/
+**/.nuxt/
+.cache/
+**/.cache/
+.parcel-cache/
+**/.parcel-cache/
+.turbo/
+**/.turbo/
+.vercel/
+**/.vercel/
+.output/
+**/.output/
+storybook-static/
+.storybook-out/
 
-# Environment variables
+# PWA Service Worker generated files
+**/public/sw.js
+**/public/sw.js.map
+**/public/workbox-*.js
+**/public/workbox-*.js.map
+**/public/worker-*.js
+**/public/worker-*.js.map
+
+# ------------------------------------------------------------------------------
+# 3. Environment & Secrets (Never commit credentials)
+# ------------------------------------------------------------------------------
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.template
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.template
 
-# Logs
-logs
+# ------------------------------------------------------------------------------
+# 4. Logs & Process Runtimes
+# ------------------------------------------------------------------------------
+logs/
+**/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 lerna-debug.log*
-
-# Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# ------------------------------------------------------------------------------
+# 5. Testing & Code Quality Caches
+# ------------------------------------------------------------------------------
 coverage/
+**/coverage/
 *.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-jspm_packages/
-
-# TypeScript cache
+.nyc_output/
+**/.nyc_output/
+playwright-report/
+test-results/
+.playwright/
+.pytest_cache/
+**/.pytest_cache/
+.hypothesis/
+**/.hypothesis/
+.mypy_cache/
+**/.mypy_cache/
+.dmypy.json
+dmypy.json
 *.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
 .eslintcache
-
-# Microbundle cache
 .rpt2_cache/
 .rts2_cache_cjs/
 .rts2_cache_es/
 .rts2_cache_umd/
-
-# Optional REPL history
 .node_repl_history
 
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
+# ------------------------------------------------------------------------------
+# 6. Uploads, Media & Temporary Artifacts
+# ------------------------------------------------------------------------------
+uploads/
+**/uploads/
+!**/uploads/.gitkeep
 tmp/
+**/tmp/
 temp/
+**/temp/
+*.db
+*.sqlite
+*.sqlite3
 
-# Editor directories and files
-.vscode/
-.idea/
-.kiro/
-.qodo/
-*.swp
-*.swo
-*~
+# ------------------------------------------------------------------------------
+# 7. Python & ML Virtual Environments
+# ------------------------------------------------------------------------------
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+**/env/
+venv/
+**/venv/
+.venv/
+**/.venv/
+env.bak/
+venv.bak/
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
 
-# OS generated files
+# ------------------------------------------------------------------------------
+# 8. Machine Learning Model Weights & Large Binaries
+# (Models are loaded from external storage or trained via pipelines)
+# ------------------------------------------------------------------------------
+*.pkl
+*.pth
+*.pt
+*.joblib
+*.h5
+*.pb
+*.onnx
+*.bin
+models/*
+!models/.gitkeep
+ml-service/models/*
+!ml-service/models/.gitkeep
+
+# ------------------------------------------------------------------------------
+# 9. Operating System Artifacts
+# ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
 ._*
@@ -101,49 +166,26 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# ------------------------------------------------------------------------------
+# 10. Editor & IDE Settings
+# ------------------------------------------------------------------------------
+.vscode/
+**/.vscode/
+.idea/
+**/.idea/
+*.swp
+*.swo
+*~
+.kiro/
+.qodo/
+.qoder/
 
-# Uploads
-uploads/
-*/uploads/
-
-# Project files
-mdfies/
-
-# Docker
-.dockerignore
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# ML Models
-*.pkl
-*.joblib
-*.h5
-*.pb
-models/
-!models/.gitkeep
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pytest
-.pytest_cache/
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# ------------------------------------------------------------------------------
+# 11. Agent & Workspace Scratch
+# ------------------------------------------------------------------------------
+.agents/scratch/
+**/scratch/

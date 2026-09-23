@@ -561,9 +561,51 @@ BEGIN
     FOR r IN 
         SELECT tablename 
         FROM pg_tables 
-        WHERE schemaname = 'public'
+        WHERE schemaname = 'public' AND tablename NOT LIKE '\_%'
     LOOP
         EXECUTE format('ALTER TABLE "public".%I ENABLE ROW LEVEL SECURITY;', r.tablename);
     END LOOP;
 END $$;
+
+-- Policies for "users"
+CREATE POLICY "users_select_own" ON "users" FOR SELECT USING (auth.uid()::text = "id");
+CREATE POLICY "users_update_own" ON "users" FOR UPDATE USING (auth.uid()::text = "id");
+
+-- Policies for "farms"
+CREATE POLICY "farms_select_own" ON "farms" FOR SELECT USING (auth.uid()::text = "userId");
+CREATE POLICY "farms_insert_own" ON "farms" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+CREATE POLICY "farms_update_own" ON "farms" FOR UPDATE USING (auth.uid()::text = "userId");
+CREATE POLICY "farms_delete_own" ON "farms" FOR DELETE USING (auth.uid()::text = "userId");
+
+-- Policies for "crop_recommendations"
+CREATE POLICY "crop_rec_select_own" ON "crop_recommendations" FOR SELECT USING (auth.uid()::text = "userId");
+CREATE POLICY "crop_rec_insert_own" ON "crop_recommendations" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+CREATE POLICY "crop_rec_delete_own" ON "crop_recommendations" FOR DELETE USING (auth.uid()::text = "userId");
+
+-- Policies for "yield_predictions"
+CREATE POLICY "yield_pred_select_own" ON "yield_predictions" FOR SELECT USING (auth.uid()::text = "userId");
+CREATE POLICY "yield_pred_insert_own" ON "yield_predictions" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+CREATE POLICY "yield_pred_delete_own" ON "yield_predictions" FOR DELETE USING (auth.uid()::text = "userId");
+
+-- Policies for "disease_detections"
+CREATE POLICY "disease_select_own" ON "disease_detections" FOR SELECT USING (auth.uid()::text = "userId");
+CREATE POLICY "disease_insert_own" ON "disease_detections" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+
+-- Policies for "calendar_tasks"
+CREATE POLICY "calendar_select_own" ON "calendar_tasks" FOR SELECT USING (auth.uid()::text = "userId");
+CREATE POLICY "calendar_insert_own" ON "calendar_tasks" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+CREATE POLICY "calendar_update_own" ON "calendar_tasks" FOR UPDATE USING (auth.uid()::text = "userId");
+CREATE POLICY "calendar_delete_own" ON "calendar_tasks" FOR DELETE USING (auth.uid()::text = "userId");
+
+-- Policies for "forum_categories" (Public Read)
+CREATE POLICY "forum_cat_select_public" ON "forum_categories" FOR SELECT USING (true);
+
+-- Policies for "forum_threads" (Public Read, Authenticated Write)
+CREATE POLICY "forum_threads_select_public" ON "forum_threads" FOR SELECT USING (true);
+CREATE POLICY "forum_threads_insert_own" ON "forum_threads" FOR INSERT WITH CHECK (auth.uid()::text = "authorId");
+CREATE POLICY "forum_threads_update_own" ON "forum_threads" FOR UPDATE USING (auth.uid()::text = "authorId");
+CREATE POLICY "forum_threads_delete_own" ON "forum_threads" FOR DELETE USING (auth.uid()::text = "authorId");
+
+-- Policies for "knowledge_articles" (Public Read)
+CREATE POLICY "knowledge_articles_select_public" ON "knowledge_articles" FOR SELECT USING (true);
 

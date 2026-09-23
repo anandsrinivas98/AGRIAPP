@@ -2,8 +2,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const env = process.env.NODE_ENV || 'development';
+const jwtSecret = process.env.JWT_SECRET || (env === 'production' ? '' : 'dev-only-insecure-secret-key-change-me');
+
+if (env === 'production' && (!jwtSecret || jwtSecret === 'your-super-secret-jwt-key' || jwtSecret === 'dev-only-insecure-secret-key-change-me')) {
+  throw new Error('FATAL SECURITY ERROR: JWT_SECRET must be set to a strong secret in production environment.');
+}
+
 export const config = {
-  env: process.env.NODE_ENV || 'development',
+  env,
   port: parseInt(process.env.PORT || '5000', 10),
   
   database: {
@@ -11,7 +18,7 @@ export const config = {
   },
   
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
+    secret: jwtSecret,
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   

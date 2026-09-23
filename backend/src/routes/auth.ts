@@ -14,6 +14,7 @@ import {
 } from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validation';
+import { authLimiter, otpLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -108,6 +109,7 @@ const router = Router();
  *         description: User already exists
  */
 router.post('/register', [
+  authLimiter,
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 }),
   body('firstName').trim().isLength({ min: 1 }),
@@ -146,6 +148,7 @@ router.post('/register', [
  *         description: Invalid credentials
  */
 router.post('/login', [
+  authLimiter,
   body('email').isEmail().normalizeEmail(),
   body('password').exists(),
   validate,
@@ -262,6 +265,7 @@ router.post('/refresh', refreshToken);
  *         description: Invalid or expired OTP
  */
 router.post('/verify-email', [
+  otpLimiter,
   body('email').isEmail().normalizeEmail(),
   body('otp').isLength({ min: 6, max: 6 }),
   validate,
@@ -292,6 +296,7 @@ router.post('/verify-email', [
  *         description: User not found
  */
 router.post('/resend-otp', [
+  otpLimiter,
   body('email').isEmail().normalizeEmail(),
   validate,
 ], resendVerificationOTP);
@@ -319,6 +324,7 @@ router.post('/resend-otp', [
  *         description: Password reset email sent
  */
 router.post('/forgot-password', [
+  authLimiter,
   body('email').isEmail().normalizeEmail(),
   validate,
 ], forgotPassword);
@@ -351,6 +357,7 @@ router.post('/forgot-password', [
  *         description: Invalid or expired token
  */
 router.post('/reset-password', [
+  authLimiter,
   body('token').isLength({ min: 1 }),
   body('newPassword').isLength({ min: 6 }),
   validate,

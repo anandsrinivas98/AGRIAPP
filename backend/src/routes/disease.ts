@@ -1,9 +1,35 @@
 import { Router } from 'express';
 import { auth } from '../middleware/auth';
 import multer from 'multer';
+import path from 'path';
+import crypto from 'crypto';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const safeName = `${crypto.randomUUID()}${ext}`;
+    cb(null, safeName);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (allowedMimes.includes(file.mimetype) && allowedExts.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, and WebP images are allowed.'));
+    }
+  },
+});
 
 /**
  * @swagger

@@ -31,7 +31,7 @@ router.get('/threads', async (req, res: Response) => {
     res.json(threads);
   } catch (error: any) {
     console.error('Error getting threads:', error);
-    res.status(500).json({ error: error.message, details: error.stack });
+    res.status(500).json({ error: 'Failed to retrieve threads' });
   }
 });
 

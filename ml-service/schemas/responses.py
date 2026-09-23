@@ -50,3 +50,4 @@ class DiseaseDetectionResponse(BaseModel):
     severity: str
     all_predictions: List[DiseasePrediction]
     recommendations: Dict[str, str]
+    timestamp: Optional[str] = None
