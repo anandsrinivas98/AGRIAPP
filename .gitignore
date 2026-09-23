@@ -185,7 +185,14 @@ $RECYCLE.BIN/
 .qoder/
 
 # ------------------------------------------------------------------------------
-# 11. Agent & Workspace Scratch
+# 11. Agent Governance, Config & Workspace Summaries
 # ------------------------------------------------------------------------------
-.agents/scratch/
+.agents/
+.agent/
+**/.agents/
+**/.agent/
+AGENTS.md
+CONTEXT_SUMMARY.md
+.hypothesis/
+**/.hypothesis/
 **/scratch/
