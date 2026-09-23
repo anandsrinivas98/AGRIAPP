@@ -568,44 +568,83 @@ BEGIN
 END $$;
 
 -- Policies for "users"
+DROP POLICY IF EXISTS "users_select_own" ON "users";
 CREATE POLICY "users_select_own" ON "users" FOR SELECT USING (auth.uid()::text = "id");
+
+DROP POLICY IF EXISTS "users_update_own" ON "users";
 CREATE POLICY "users_update_own" ON "users" FOR UPDATE USING (auth.uid()::text = "id");
 
 -- Policies for "farms"
+DROP POLICY IF EXISTS "farms_select_own" ON "farms";
 CREATE POLICY "farms_select_own" ON "farms" FOR SELECT USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "farms_insert_own" ON "farms";
 CREATE POLICY "farms_insert_own" ON "farms" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "farms_update_own" ON "farms";
 CREATE POLICY "farms_update_own" ON "farms" FOR UPDATE USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "farms_delete_own" ON "farms";
 CREATE POLICY "farms_delete_own" ON "farms" FOR DELETE USING (auth.uid()::text = "userId");
 
 -- Policies for "crop_recommendations"
+DROP POLICY IF EXISTS "crop_rec_select_own" ON "crop_recommendations";
 CREATE POLICY "crop_rec_select_own" ON "crop_recommendations" FOR SELECT USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "crop_rec_insert_own" ON "crop_recommendations";
 CREATE POLICY "crop_rec_insert_own" ON "crop_recommendations" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "crop_rec_delete_own" ON "crop_recommendations";
 CREATE POLICY "crop_rec_delete_own" ON "crop_recommendations" FOR DELETE USING (auth.uid()::text = "userId");
 
 -- Policies for "yield_predictions"
+DROP POLICY IF EXISTS "yield_pred_select_own" ON "yield_predictions";
 CREATE POLICY "yield_pred_select_own" ON "yield_predictions" FOR SELECT USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "yield_pred_insert_own" ON "yield_predictions";
 CREATE POLICY "yield_pred_insert_own" ON "yield_predictions" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "yield_pred_delete_own" ON "yield_predictions";
 CREATE POLICY "yield_pred_delete_own" ON "yield_predictions" FOR DELETE USING (auth.uid()::text = "userId");
 
 -- Policies for "disease_detections"
+DROP POLICY IF EXISTS "disease_select_own" ON "disease_detections";
 CREATE POLICY "disease_select_own" ON "disease_detections" FOR SELECT USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "disease_insert_own" ON "disease_detections";
 CREATE POLICY "disease_insert_own" ON "disease_detections" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
 
 -- Policies for "calendar_tasks"
+DROP POLICY IF EXISTS "calendar_select_own" ON "calendar_tasks";
 CREATE POLICY "calendar_select_own" ON "calendar_tasks" FOR SELECT USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "calendar_insert_own" ON "calendar_tasks";
 CREATE POLICY "calendar_insert_own" ON "calendar_tasks" FOR INSERT WITH CHECK (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "calendar_update_own" ON "calendar_tasks";
 CREATE POLICY "calendar_update_own" ON "calendar_tasks" FOR UPDATE USING (auth.uid()::text = "userId");
+
+DROP POLICY IF EXISTS "calendar_delete_own" ON "calendar_tasks";
 CREATE POLICY "calendar_delete_own" ON "calendar_tasks" FOR DELETE USING (auth.uid()::text = "userId");
 
 -- Policies for "forum_categories" (Public Read)
+DROP POLICY IF EXISTS "forum_cat_select_public" ON "forum_categories";
 CREATE POLICY "forum_cat_select_public" ON "forum_categories" FOR SELECT USING (true);
 
 -- Policies for "forum_threads" (Public Read, Authenticated Write)
+DROP POLICY IF EXISTS "forum_threads_select_public" ON "forum_threads";
 CREATE POLICY "forum_threads_select_public" ON "forum_threads" FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "forum_threads_insert_own" ON "forum_threads";
 CREATE POLICY "forum_threads_insert_own" ON "forum_threads" FOR INSERT WITH CHECK (auth.uid()::text = "authorId");
+
+DROP POLICY IF EXISTS "forum_threads_update_own" ON "forum_threads";
 CREATE POLICY "forum_threads_update_own" ON "forum_threads" FOR UPDATE USING (auth.uid()::text = "authorId");
+
+DROP POLICY IF EXISTS "forum_threads_delete_own" ON "forum_threads";
 CREATE POLICY "forum_threads_delete_own" ON "forum_threads" FOR DELETE USING (auth.uid()::text = "authorId");
 
 -- Policies for "knowledge_articles" (Public Read)
+DROP POLICY IF EXISTS "knowledge_articles_select_public" ON "knowledge_articles";
 CREATE POLICY "knowledge_articles_select_public" ON "knowledge_articles" FOR SELECT USING (true);
 
