@@ -4,52 +4,48 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from '@heroicons/react/24/solid';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
-const testimonials = [
+const platformFeatures = [
   {
     id: 1,
-    name: 'Wheat Cultivator',
-    role: 'Punjab',
-    avatar: '/avatars/farmer1.jpg',
-    icon: '🌾',
-    rating: 5,
-    text: 'AgriSense has been a valuable tool for crop planning. The AI crop recommendations helped us select the right variety and optimize our sowing schedule.',
-    crop: 'Wheat',
-    yield_increase: 0,
+    name: 'AI-Based Crop Recommendation',
+    role: 'AgriSense Project',
+    icon: '🌱',
+    status: 'Model-Based',
+    text: 'AgriSense analyzes soil and environmental inputs such as NPK values, pH, temperature, humidity, and rainfall to provide crop recommendations based on the available model. Designed to help farmers make more informed crop-planning decisions using available soil and environmental data.',
+    tag1: 'AI RECOMMENDATION',
+    tag2: 'PROJECT FEATURE',
   },
   {
     id: 2,
-    name: 'Organic Grower',
-    role: 'Maharashtra',
-    avatar: '/avatars/farmer2.jpg',
-    icon: '🌱',
-    rating: 5,
-    text: 'The disease detection feature is highly beneficial. Identifying crop diseases early helped us take timely corrective measures using sustainable practices.',
-    crop: 'Tomato',
-    yield_increase: 0,
+    name: 'Crop & Yield Analysis',
+    role: 'AgriSense Project',
+    icon: '📊',
+    status: 'Prototype Feature',
+    text: 'The platform combines machine-learning based crop analysis with farm management features to help users understand crop conditions and plan farming activities.',
+    tag1: 'CROP ANALYSIS',
+    tag2: 'PROJECT FEATURE',
   },
   {
     id: 3,
-    name: 'Rice Cultivator',
-    role: 'West Bengal',
-    avatar: '/avatars/farmer3.jpg',
-    icon: '🍚',
-    rating: 5,
-    text: 'The weather monitoring and irrigation planning tools have helped us manage our water resources more efficiently throughout the cultivation cycle.',
-    crop: 'Rice',
-    yield_increase: 0,
+    name: 'Plant Disease Detection',
+    role: 'AgriSense Project',
+    icon: '🔍',
+    status: 'AI Feature',
+    text: 'The platform includes image-based plant disease detection to identify potential crop health issues and provide relevant guidance.',
+    tag1: 'COMPUTER VISION',
+    tag2: 'PROJECT FEATURE',
   },
   {
     id: 4,
-    name: 'Agricultural Researcher',
-    role: 'Research Institute',
-    avatar: '/avatars/scientist1.jpg',
-    icon: '🔬',
-    rating: 5,
-    text: 'The predictive insights and data-driven crop analysis provided by the platform offer a solid reference for sustainable farming research.',
-    crop: 'Research',
-    yield_increase: 0,
+    name: 'Farm Management Tools',
+    role: 'AgriSense Project',
+    icon: '🚜',
+    status: 'Platform Feature',
+    text: 'AgriSense brings crop planning, weather information, farming guidance, and other management features together in one platform.',
+    tag1: 'FARM MANAGEMENT',
+    tag2: 'PROJECT FEATURE',
   },
 ];
 
@@ -59,12 +55,12 @@ export default function Testimonials() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const nextTestimonial = () => {
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  const nextFeature = () => {
+    setCurrentIndex((prev) => (prev + 1) % platformFeatures.length);
   };
 
-  const prevTestimonial = () => {
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const prevFeature = () => {
+    setCurrentIndex((prev) => (prev - 1 + platformFeatures.length) % platformFeatures.length);
   };
 
   const containerVariants = {
@@ -101,14 +97,14 @@ export default function Testimonials() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-display text-gray-900 mb-4">
-            {t('testimonials.title', 'User Feedback & Platform Experience')}
+            {t('testimonials.title', 'AgriSense Platform Overview')}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('testimonials.subtitle', 'Usability feedback and insights from agricultural trial users and growers')}
+            {t('testimonials.subtitle', 'An AI-powered agricultural platform designed to support crop planning, crop recommendations, and farm management.')}
           </p>
         </motion.div>
 
-        {/* Main testimonial carousel */}
+        {/* Main feature carousel */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -121,9 +117,9 @@ export default function Testimonials() {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="flex"
             >
-              {testimonials.map((testimonial, index) => (
+              {platformFeatures.map((feature) => (
                 <div
-                  key={testimonial.id}
+                  key={feature.id}
                   className="w-full flex-shrink-0 px-4"
                 >
                   <motion.div
@@ -131,38 +127,31 @@ export default function Testimonials() {
                     className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mx-auto max-w-4xl border border-gray-100 border-l-4 border-l-emerald-500"
                   >
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                      {/* Avatar and info */}
+                      {/* Icon and info */}
                       <div className="flex-shrink-0 text-center md:text-left">
                         <motion.div
                           whileHover={{ scale: 1.05 }}
                           className="w-24 h-24 bg-gradient-to-tr from-green-500 via-emerald-600 to-teal-500 rounded-2xl shadow-lg flex flex-col items-center justify-center text-white relative mb-4 mx-auto md:mx-0 border border-white/20"
                         >
-                          <span className="text-4xl mb-1 filter drop-shadow">{testimonial.icon}</span>
+                          <span className="text-4xl mb-1 filter drop-shadow">{feature.icon}</span>
                           <span className="text-[10px] uppercase tracking-widest font-bold opacity-80 font-sans">
-                            {testimonial.name.split(' ').map(n => n[0]).join('')}
+                            {feature.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </motion.div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                          {testimonial.name}
+                          {feature.name}
                         </h3>
-                        <p className="text-gray-600 mb-3">{testimonial.role}</p>
+                        <p className="text-gray-600 mb-3">{feature.role}</p>
                         
-                        {/* Rating stars */}
+                        {/* Neutral status badge replacing star ratings */}
                         <div className="flex justify-center md:justify-start mb-4">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0, scale: 0 }}
-                              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-                              transition={{ delay: i * 0.1 + 0.5 }}
-                            >
-                              <StarIcon className="w-5 h-5 text-yellow-400" />
-                            </motion.div>
-                          ))}
+                          <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold border border-emerald-200">
+                            {feature.status}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Testimonial content */}
+                      {/* Feature content */}
                       <div className="flex-1">
                         <motion.div
                           initial={{ opacity: 0 }}
@@ -181,7 +170,7 @@ export default function Testimonials() {
                           transition={{ delay: 0.4 }}
                           className="text-lg md:text-xl text-gray-700 italic leading-relaxed mb-6"
                         >
-                          {testimonial.text}
+                          {feature.text}
                         </motion.p>
 
                         <motion.div
@@ -191,15 +180,12 @@ export default function Testimonials() {
                           className="flex flex-wrap items-center justify-center md:justify-start gap-4"
                         >
                           <span className="px-3 py-1 bg-accent-50 text-accent-700 rounded-full text-xs font-semibold uppercase tracking-wider border border-accent-100">
-                            {testimonial.crop}
+                            {feature.tag1}
                           </span>
                           
-                          <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full text-xs font-semibold border border-emerald-100">
-                            <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>{t('testimonials.verified', 'User Feedback')}</span>
-                          </div>
+                          <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold uppercase tracking-wider border border-emerald-100">
+                            {feature.tag2}
+                          </span>
                         </motion.div>
                       </div>
                     </div>
@@ -214,7 +200,7 @@ export default function Testimonials() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={prevTestimonial}
+              onClick={prevFeature}
               className="p-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow border border-gray-200"
             >
               <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
@@ -223,7 +209,7 @@ export default function Testimonials() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={nextTestimonial}
+              onClick={nextFeature}
               className="p-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-shadow border border-gray-200"
             >
               <ChevronRightIcon className="w-6 h-6 text-gray-600" />
@@ -232,7 +218,7 @@ export default function Testimonials() {
 
           {/* Dots indicator */}
           <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, index) => (
+            {platformFeatures.map((_, index) => (
               <motion.button
                 key={index}
                 whileHover={{ scale: 1.2 }}

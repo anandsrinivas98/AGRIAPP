@@ -4,11 +4,10 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { forumService } from '@/services/forumService';
 
 function CountUpAnimation({ 
   value, 
-  duration = 2000, 
+  duration = 1500, 
   isInView 
 }: { 
   value: number; 
@@ -52,57 +51,43 @@ export default function Stats() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const [mounted, setMounted] = useState(false);
-  
-  const [dbStats, setDbStats] = useState<{
-    totalUsers: number;
-    totalThreads: number;
-    totalReplies: number;
-    activeToday: number;
-  } | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    
-    forumService.getForumStats()
-      .then(data => {
-        if (data) {
-          setDbStats({
-            totalUsers: data.totalUsers || 0,
-            totalThreads: data.totalThreads || 0,
-            totalReplies: data.totalReplies || 0,
-            activeToday: data.activeToday || 0,
-          });
-        }
-      })
-      .catch(err => {
-        console.error('Error fetching real-time forum stats:', err);
-      });
   }, []);
 
-  const stats = [
+  const projectStats = [
     {
-      key: 'farmers',
-      icon: '👨‍🌾',
-      suffix: '+',
-      value: dbStats ? dbStats.totalUsers : 7,
+      key: 'ml_models',
+      title: 'ML Models',
+      description: 'Crop Recommendation, Yield Prediction, and Disease Detection inference engines.',
+      icon: '🧠',
+      suffix: '',
+      value: 3,
     },
     {
-      key: 'threads',
-      icon: '💬',
-      suffix: '+',
-      value: dbStats ? dbStats.totalThreads : 6,
+      key: 'crop_types',
+      title: 'Core Crops',
+      description: 'Major agricultural crops supported by the machine learning recommendation model.',
+      icon: '🌱',
+      suffix: '',
+      value: 10,
     },
     {
-      key: 'replies',
-      icon: '🎯',
-      suffix: '+',
-      value: dbStats ? dbStats.totalReplies : 6,
+      key: 'disease_classes',
+      title: 'Disease Classes',
+      description: 'PlantVillage computer vision disease categories supported for plant diagnostics.',
+      icon: '🔍',
+      suffix: '',
+      value: 38,
     },
     {
-      key: 'active_today',
-      icon: '📈',
-      suffix: '+',
-      value: dbStats ? dbStats.activeToday : 6,
+      key: 'core_modules',
+      title: 'Project Modules',
+      description: 'Integrated modules for weather, soil, analytics, market tracking, and AI assistance.',
+      icon: '⚙️',
+      suffix: '',
+      value: 6,
     },
   ];
 
@@ -140,10 +125,10 @@ export default function Stats() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-display text-white mb-4">
-            {t('stats.title', 'AgriSense Community Impact')}
+            {t('stats.title', 'AgriSense Project Capabilities')}
           </h2>
           <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            {t('stats.subtitle', 'Real-time statistics from our growing network of farmers and experts collaborating on sustainable agriculture')}
+            {t('stats.subtitle', 'Factual architecture metrics and core machine learning models integrated into the AgriSense platform.')}
           </p>
         </motion.div>
 
@@ -153,7 +138,7 @@ export default function Stats() {
           animate={isInView ? "visible" : "hidden"}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         >
-          {stats.map((stat, index) => (
+          {projectStats.map((stat, index) => (
             <motion.div
               key={stat.key}
               variants={itemVariants}
@@ -193,11 +178,11 @@ export default function Stats() {
                   </div>
 
                   <h3 className="text-xl font-bold text-white mb-2 font-display">
-                    {t(`stats.${stat.key}.title`, stat.key.replace('_', ' '))}
+                    {stat.title}
                   </h3>
                   
                   <p className="text-white/85 text-sm leading-relaxed">
-                    {t(`stats.${stat.key}.description`, '')}
+                    {stat.description}
                   </p>
                 </div>
 
@@ -213,7 +198,7 @@ export default function Stats() {
           ))}
         </motion.div>
 
-        {/* Additional metrics */}
+        {/* Core project features overview */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -222,23 +207,23 @@ export default function Stats() {
         >
           <div className="text-white/90 bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <div className="text-xl font-bold mb-2">
-              {t('stats.predictions.title', 'Continuous Predictions')}
+              Crop Recommendation
             </div>
-            <p className="text-sm text-white/80">{t('stats.predictions.description', 'Generates real-time crop recommendations and alerts daily')}</p>
+            <p className="text-sm text-white/80">Analyzes NPK, pH, temperature, humidity, and rainfall data.</p>
           </div>
           
           <div className="text-white/90 bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <div className="text-xl font-bold mb-2">
-              {t('stats.uptime.title', 'Reliable Platform')}
+              Yield Prediction
             </div>
-            <p className="text-sm text-white/80">{t('stats.uptime.description', 'High availability system with real-time updates')}</p>
+            <p className="text-sm text-white/80">Forecasting tool built on historical environmental factors.</p>
           </div>
           
           <div className="text-white/90 bg-white/5 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <div className="text-xl font-bold mb-2">
-              {t('stats.support.title', 'Expert Guidance')}
+              Disease Detection
             </div>
-            <p className="text-sm text-white/80">{t('stats.support.description', 'Dedicated chatbot and agricultural assistance')}</p>
+            <p className="text-sm text-white/80">Computer vision model for plant leaf diagnosis & care tips.</p>
           </div>
         </motion.div>
       </div>

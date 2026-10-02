@@ -25,11 +25,11 @@ export default function CTA() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Ready to Transform Your Farming?
+            Experience AgriSense Platform
           </h2>
           
           <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-            Join thousands of farmers who have increased their yields and profits with AgriSense AI technology.
+            Explore our AI-powered crop recommendation, yield prediction, and plant disease detection modules.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
