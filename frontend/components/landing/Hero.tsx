@@ -247,17 +247,17 @@ export default function Hero() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-primary-600 text-xl">🌱</span>
-                <span className="font-medium text-sm md:text-base">{t('hero.stats.farmers', 'Trusted by farmers across India')}</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.farmers', 'Intelligent Crop Management')}</span>
               </div>
               <div className="hidden sm:block h-4 w-px bg-gray-300" />
               <div className="flex items-center gap-2">
                 <span className="text-primary-600 text-xl">🎯</span>
-                <span className="font-medium text-sm md:text-base">{t('hero.stats.accuracy', 'High-accuracy AI crop insights')}</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.accuracy', 'AI-Driven Advisory')}</span>
               </div>
               <div className="hidden sm:block h-4 w-px bg-gray-300" />
               <div className="flex items-center gap-2">
                 <span className="text-primary-600 text-xl">📈</span>
-                <span className="font-medium text-sm md:text-base">{t('hero.stats.yield', 'Sustainable yield improvement')}</span>
+                <span className="font-medium text-sm md:text-base">{t('hero.stats.yield', 'Sustainable Farming Analytics')}</span>
               </div>
             </motion.div>
           </motion.div>
@@ -301,7 +301,7 @@ export default function Hero() {
                   />
                   <div>
                     <div className="text-xs font-semibold text-gray-800">Crop Health</div>
-                    <div className="text-sm font-bold text-green-600">Excellent</div>
+                    <div className="text-sm font-bold text-green-600">Active Monitoring</div>
                   </div>
                 </div>
               </div>
@@ -314,8 +314,8 @@ export default function Hero() {
             >
               <div className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-primary-200">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-600">+25%</div>
-                  <div className="text-xs text-gray-600 font-medium">Yield Boost</div>
+                  <div className="text-lg font-bold text-primary-600">AI Yield</div>
+                  <div className="text-xs text-gray-600 font-medium">Prediction</div>
                 </div>
               </div>
             </motion.div>

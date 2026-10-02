@@ -5,9 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { 
   MapPinIcon, 
-  PhoneIcon, 
-  EnvelopeIcon,
-  HeartIcon 
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 
 const footerLinks = {
@@ -69,7 +67,7 @@ export default function Footer() {
                 </Link>
                 
                 <p className="text-gray-300 mb-6 leading-relaxed">
-                  {t('footer.description', 'Empowering farmers worldwide with AI-driven agricultural solutions for sustainable and profitable farming.')}
+                  {t('footer.description', 'An open-source precision agriculture platform delivering data-driven decision support for crop recommendation, yield forecasting, and disease detection.')}
                 </p>
 
                 {/* Contact info */}
@@ -81,12 +79,8 @@ export default function Footer() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-gray-300">
-                    <PhoneIcon className="w-5 h-5 text-primary-400" />
-                    <span className="text-sm">+91 80 1234 5678</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-300">
                     <EnvelopeIcon className="w-5 h-5 text-primary-400" />
-                    <span className="text-sm">hello@agrisense.ai</span>
+                    <span className="text-sm">support@agrisense.dev</span>
                   </div>
                 </div>
               </motion.div>
@@ -167,9 +161,7 @@ export default function Footer() {
               viewport={{ once: true }}
               className="flex items-center gap-2 text-gray-400 text-sm"
             >
-              <span>© 2024 AgriSense. Made with</span>
-              <HeartIcon className="w-4 h-4 text-red-500" />
-              <span>for farmers worldwide.</span>
+              <span>© 2026 AgriSense Platform. Open Source Precision Agriculture System.</span>
             </motion.div>
 
             {/* Social links */}

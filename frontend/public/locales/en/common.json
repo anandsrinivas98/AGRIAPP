@@ -12,9 +12,9 @@
       "secondary": "Watch Demo"
     },
     "stats": {
-      "farmers": "Trusted by farmers across India",
-      "accuracy": "High-accuracy AI crop insights",
-      "yield": "Sustainable yield improvement"
+      "farmers": "Intelligent Crop Management",
+      "accuracy": "AI-Driven Advisory",
+      "yield": "Sustainable Farming Analytics"
     }
   },
   "features": {
@@ -182,14 +182,14 @@
     }
   },
   "testimonials": {
-    "title": "What Farmers Say About AgriSense",
-    "subtitle": "Real stories from farmers who transformed their agriculture with AI",
-    "yield_increase": "Yield Increase",
-    "verified": "Verified Farmer",
-    "trust": "Trusted by agricultural institutions and government bodies"
+    "title": "User Feedback & Platform Experience",
+    "subtitle": "Usability feedback and insights from agricultural trial users and growers",
+    "yield_increase": "Yield Analysis",
+    "verified": "User Feedback",
+    "trust": "Designed for modern precision agriculture"
   },
   "footer": {
-    "description": "Empowering farmers worldwide with AI-driven agricultural solutions for sustainable and profitable farming.",
+    "description": "An open-source precision agriculture platform delivering data-driven decision support for crop recommendation, yield forecasting, and disease detection.",
     "address": "Bangalore, Karnataka, India",
     "product": "Product",
     "company": "Company",

@@ -101,10 +101,10 @@ export default function Testimonials() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold font-display text-gray-900 mb-4">
-            {t('testimonials.title', 'What Farmers Say About AgriSense')}
+            {t('testimonials.title', 'User Feedback & Platform Experience')}
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            {t('testimonials.subtitle', 'Real stories from farmers who transformed their agriculture with AI')}
+            {t('testimonials.subtitle', 'Usability feedback and insights from agricultural trial users and growers')}
           </p>
         </motion.div>
 
@@ -198,7 +198,7 @@ export default function Testimonials() {
                             <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>{t('testimonials.verified', 'Verified Farmer')}</span>
+                            <span>{t('testimonials.verified', 'User Feedback')}</span>
                           </div>
                         </motion.div>
                       </div>
@@ -242,33 +242,6 @@ export default function Testimonials() {
                 }`}
               />
             ))}
-          </div>
-        </motion.div>
-
-        {/* Trust indicators */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-gray-600 mb-8 font-medium">
-            {t('testimonials.trust', 'Trusted by agricultural institutions and government bodies')}
-          </p>
-          
-          <div className="flex flex-wrap justify-center items-center gap-8">
-            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
-              🏛️ ICAR Research
-            </div>
-            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
-              🌾 Ministry of Ag
-            </div>
-            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
-              🇺🇳 FAO Partner
-            </div>
-            <div className="h-14 w-40 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-700 text-sm font-semibold hover:shadow-md transition-shadow">
-              🚜 AgTech Alliance
-            </div>
           </div>
         </motion.div>
       </div>
