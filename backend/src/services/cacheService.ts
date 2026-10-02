@@ -67,6 +67,9 @@ class CacheService {
    * Check if Redis is connected and healthy
    */
   async healthCheck(): Promise<boolean> {
+    if (!this.isEnabled) {
+      return true; // Cache is operating gracefully in fallback/disabled mode
+    }
     if (!this.client || !this.isConnected) {
       return false;
     }
