@@ -126,7 +126,7 @@ function DashboardContent() {
       emoji: '🌱',
       icon: SparklesIcon,
       badge: 'AI Powered',
-      tags: ['Instant Results', '95% Accuracy'],
+      tags: ['Instant Results', 'High Precision'],
       gradient: 'from-green-500 to-emerald-700',
       bgGradient: 'from-green-50 to-emerald-50',
       iconColor: 'text-green-700',
@@ -393,16 +393,16 @@ function DashboardContent() {
                 className="grid grid-cols-3 gap-6 max-w-xl mx-auto"
               >
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">10K+</div>
-                  <div className="text-green-100 text-xs font-medium">Active Farmers</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">3</div>
+                  <div className="text-green-100 text-xs font-medium">Core ML Models</div>
                 </div>
                 <div className="text-center border-x border-white/30">
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">50+</div>
-                  <div className="text-green-100 text-xs font-medium">AI Features</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">10</div>
+                  <div className="text-green-100 text-xs font-medium">Core Crops</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">98%</div>
-                  <div className="text-green-100 text-xs font-medium">Satisfaction</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-0.5">38</div>
+                  <div className="text-green-100 text-xs font-medium">Disease Classes</div>
                 </div>
               </motion.div>
             </div>

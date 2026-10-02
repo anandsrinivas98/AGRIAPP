@@ -89,22 +89,22 @@ export default function AboutPage() {
           </div>
 
           <div className="bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg p-8 text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
+            <h2 className="text-2xl font-bold mb-4">Powered by Real Machine Learning</h2>
             <p className="text-xl mb-6">
-              Thousands of farmers worldwide trust AgriSense for their agricultural needs
+              AgriSense provides data-driven decision support built directly on our custom ML service.
             </p>
             <div className="grid grid-cols-3 gap-8 max-w-md mx-auto">
               <div>
-                <div className="text-3xl font-bold">10K+</div>
-                <div className="text-sm opacity-90">Active Farmers</div>
+                <div className="text-3xl font-bold">3</div>
+                <div className="text-sm opacity-90">Core ML Models</div>
               </div>
               <div>
-                <div className="text-3xl font-bold">95%</div>
-                <div className="text-sm opacity-90">Accuracy Rate</div>
+                <div className="text-3xl font-bold">10</div>
+                <div className="text-sm opacity-90">Core Crops Analyzed</div>
               </div>
               <div>
-                <div className="text-3xl font-bold">50+</div>
-                <div className="text-sm opacity-90">Countries</div>
+                <div className="text-3xl font-bold">38</div>
+                <div className="text-sm opacity-90">Disease Classes Detected</div>
               </div>
             </div>
           </div>
