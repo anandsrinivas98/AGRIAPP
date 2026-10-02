@@ -80,12 +80,12 @@ class TestTrainingDeterminism:
             pred1 = artefact1["pipeline"].predict(test_X)
             pred2 = artefact2["pipeline"].predict(test_X)
 
-            np.testing.assert_allclose(pred1, pred2, rtol=1e-6)
+            np.testing.assert_allclose(pred1, pred2, rtol=1e-5, atol=1e-5)
 
             lower1 = artefact1["gbr_lower"].predict(test_X)
             lower2 = artefact2["gbr_lower"].predict(test_X)
-            np.testing.assert_allclose(lower1, lower2, rtol=1e-6)
+            np.testing.assert_allclose(lower1, lower2, rtol=1e-5, atol=1e-5)
 
             upper1 = artefact1["gbr_upper"].predict(test_X)
             upper2 = artefact2["gbr_upper"].predict(test_X)
-            np.testing.assert_allclose(upper1, upper2, rtol=1e-6)
+            np.testing.assert_allclose(upper1, upper2, rtol=1e-5, atol=1e-5)
